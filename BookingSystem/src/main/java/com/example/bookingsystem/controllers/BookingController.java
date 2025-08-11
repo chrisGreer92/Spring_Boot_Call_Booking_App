@@ -5,6 +5,7 @@ import com.example.bookingsystem.dtos.GenerateBookingDto;
 import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.repositories.BookingRepository;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +13,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/booking")
+@AllArgsConstructor
 public class BookingController {
 
     private final BookingMapper bookingMapper;
     private final BookingRepository bookingRepository;
-
-    public BookingController(BookingMapper bookingMapper, BookingRepository bookingRepository) {
-        this.bookingMapper = bookingMapper;
-        this.bookingRepository = bookingRepository;
-    }
 
     @PostMapping
     public ResponseEntity<BookingDto> createBooking(
@@ -39,5 +36,15 @@ public class BookingController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(bookingDto);
+    }
+
+    @GetMapping
+    public Iterable<BookingDto> getAllBookings(){
+
+        return bookingRepository
+                .findAll()
+                .stream()
+                .map(bookingMapper::toDto)
+                .toList();
     }
 }
