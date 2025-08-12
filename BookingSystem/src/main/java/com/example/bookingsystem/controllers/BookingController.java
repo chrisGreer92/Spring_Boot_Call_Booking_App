@@ -7,7 +7,6 @@ import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.repositories.BookingRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +32,10 @@ public class BookingController {
 
             UriComponentsBuilder uriBuilder
     ){
+        //May eventually be handled client side but just in case for now
+        if (request.getStartTime().isAfter(request.getEndTime())) {
+            return ResponseEntity.badRequest().build();
+        }
 
         var booking = bookingMapper.toEntity(request);
 
