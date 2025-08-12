@@ -7,9 +7,12 @@ import com.example.bookingsystem.repositories.BookingRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/booking")
@@ -39,10 +42,19 @@ public class BookingController {
     }
 
     @GetMapping
-    public Iterable<BookingDto> getAllBookings(){
+    public Iterable<BookingDto> getAllBookings(
+            @RequestParam(
+                    required = false,
+                    defaultValue = "",
+                    name = "sort")
+            String sort
+    ){
+
+        if(!Set.of("id", "startTime").contains(sort)) //Check if part of our valid list
+            sort = "id"; //Default
 
         return bookingRepository
-                .findAll()
+                .findAll(Sort.by(sort))
                 .stream()
                 .map(bookingMapper::toDto)
                 .toList();
