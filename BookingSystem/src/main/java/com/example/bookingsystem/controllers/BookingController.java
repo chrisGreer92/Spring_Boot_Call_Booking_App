@@ -22,6 +22,9 @@ public class BookingController {
 
     private final BookingMapper bookingMapper;
     private final BookingRepository bookingRepository;
+    private static final Set<String> SORT_FIELDS
+            = Set.of("id", "status", "startTime");
+    public static final String DEFAULT_SORT = "id";
 
     @PostMapping
     public ResponseEntity<BookingDto> createBooking(
@@ -69,8 +72,8 @@ public class BookingController {
             String sort
     ){
 
-        if(!Set.of("id", "startTime").contains(sort)) //Check if part of our valid list
-            sort = "id"; //Default
+        if(!SORT_FIELDS.contains(sort))
+            sort = DEFAULT_SORT;
 
         return bookingRepository
                 .findAll(Sort.by(sort))
