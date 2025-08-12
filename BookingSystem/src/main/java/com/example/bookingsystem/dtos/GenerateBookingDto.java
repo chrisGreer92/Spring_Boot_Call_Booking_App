@@ -1,5 +1,6 @@
 package com.example.bookingsystem.dtos;
 
+import com.example.bookingsystem.validation.ValidTimeRange;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ValidTimeRange
 public class GenerateBookingDto {
 
     @NotBlank(message = "Name is required")

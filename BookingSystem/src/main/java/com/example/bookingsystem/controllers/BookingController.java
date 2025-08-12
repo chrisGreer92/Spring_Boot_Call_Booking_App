@@ -35,10 +35,6 @@ public class BookingController {
 
             UriComponentsBuilder uriBuilder
     ){
-        //May eventually be handled client side but just in case for now
-        if (request.getStartTime().isAfter(request.getEndTime())) {
-            return ResponseEntity.badRequest().build();
-        }
 
         var booking = bookingMapper.toEntity(request);
 
