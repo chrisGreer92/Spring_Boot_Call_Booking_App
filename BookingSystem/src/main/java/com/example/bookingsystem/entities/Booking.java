@@ -23,6 +23,9 @@ public class Booking {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "phone_number")
+    private String phone;
+
     @Column(name = "topic")
     private String topic;
 

@@ -2,6 +2,7 @@ package com.example.bookingsystem.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,10 @@ public class GenerateBookingDto {
     @NotBlank
     @Email
     private String email;
+
+//    @NotBlank (optional)
+    @Pattern(regexp = "^[+]?\\d{7,15}$", message = "Invalid phone number")
+    private String phone;
 
     @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
