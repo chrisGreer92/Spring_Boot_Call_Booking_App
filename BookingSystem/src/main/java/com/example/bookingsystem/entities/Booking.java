@@ -1,10 +1,13 @@
 package com.example.bookingsystem.entities;
 
+import com.example.bookingsystem.model.BookingStatus;
+import static com.example.bookingsystem.model.BookingStatus.PENDING;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "booking")
@@ -42,10 +45,8 @@ public class Booking {
     private String timeZone;
 
     @Column(name = "status")
-    private String status = "PENDING";
-
-    @Column(name = "confirmed")
-    private Boolean confirmed = false;
+    @Enumerated(EnumType.STRING)
+    private BookingStatus status = PENDING;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

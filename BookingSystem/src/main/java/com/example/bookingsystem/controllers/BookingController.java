@@ -2,6 +2,7 @@ package com.example.bookingsystem.controllers;
 
 import com.example.bookingsystem.dtos.BookingDto;
 import com.example.bookingsystem.dtos.GenerateBookingDto;
+import com.example.bookingsystem.dtos.UpdateBookingStatusDto;
 import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.repositories.BookingRepository;
 import jakarta.validation.Valid;
@@ -26,6 +27,7 @@ public class BookingController {
     public ResponseEntity<BookingDto> createBooking(
             @RequestBody @Valid
             GenerateBookingDto request,
+
             UriComponentsBuilder uriBuilder
     ){
 
@@ -39,6 +41,23 @@ public class BookingController {
                 .toUri();
 
         return ResponseEntity.created(uri).body(bookingDto);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateBookingStatus(
+            @PathVariable Long id,
+
+            @RequestBody @Valid
+            UpdateBookingStatusDto request
+    ){
+        var booking = bookingRepository.findById(id).orElse(null);
+        if(booking == null) return ResponseEntity.notFound().build();
+
+        booking.setStatus(request.getStatus());
+        bookingRepository.save(booking);
+
+        return ResponseEntity.noContent().build();
+
     }
 
     @GetMapping

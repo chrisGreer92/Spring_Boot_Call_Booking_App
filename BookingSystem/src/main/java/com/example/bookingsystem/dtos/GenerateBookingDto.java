@@ -14,24 +14,18 @@ import jakarta.validation.constraints.NotBlank;
 @Setter
 public class GenerateBookingDto {
 
-    @NotBlank
-    private String name;
+    @NotBlank private String name;
 
-    @NotBlank
-    @Email
-    private String email;
+    @NotBlank @Email private String email;
 
-//    @NotBlank (optional)
     @Pattern(regexp = "^[+]?\\d{7,15}$", message = "Invalid phone number")
     private String phone;
 
-    @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
-    private LocalDateTime startTime;
+    @NotNull private LocalDateTime startTime;
 
-    @NotNull
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
-    private LocalDateTime endTime;
+    @NotNull private LocalDateTime endTime;
 
     private String topic;
 

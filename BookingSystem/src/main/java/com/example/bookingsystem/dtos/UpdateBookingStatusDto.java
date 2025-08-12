@@ -1,7 +1,7 @@
 package com.example.bookingsystem.dtos;
 
+import com.example.bookingsystem.model.BookingStatus;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +10,6 @@ import lombok.Setter;
 public class UpdateBookingStatusDto {
 
     @NotNull
-    private String status;
+    private BookingStatus status;
 
 }

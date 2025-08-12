@@ -9,10 +9,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
 
+
     BookingDto toDto(Booking booking);
 
     @Mapping(target = "status", ignore = true)
-    @Mapping(target = "confirmed", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     Booking toEntity(GenerateBookingDto request);
 }
