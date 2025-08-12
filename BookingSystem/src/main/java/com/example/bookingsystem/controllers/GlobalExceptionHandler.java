@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @ControllerAdvice
@@ -27,6 +28,15 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleJsonParseErrors(
+            org.springframework.http.converter.HttpMessageNotReadableException ex) {
+
+        Map<String, String> body = new LinkedHashMap<>();
+        body.put("error", "Invalid or missing JSON request body");
+        return ResponseEntity.badRequest().body(body);
     }
 
 }
