@@ -1,31 +1,38 @@
 package com.example.bookingsystem.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 public class GenerateBookingDto {
 
-    @NotBlank private String name;
+    @NotBlank(message = "Name is required")
+    private String name;
 
-    @NotBlank @Email private String email;
+    @NotBlank(message = "Email is required")
+    @Email(message = "Must be a valid email address")
+    private String email;
 
-    @Pattern(regexp = "^[+]?\\d{7,15}$", message = "Invalid phone number")
+    @Pattern(
+            regexp = "^[+]?\\d{7,15}$",
+            message = "Must be a valid Phone number containing 7–15 digits"
+    )
     private String phone;
 
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
-    @NotNull private LocalDateTime startTime;
+    @NotNull(message = "Start time is required")
+    @Future(message = "Start time must be in the future")
+    private LocalDateTime startTime;
 
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
-    @NotNull private LocalDateTime endTime;
+    @NotNull(message = "End time is required")
+    @Future(message = "End time must be in the future")
+    private LocalDateTime endTime;
 
     private String topic;
 
