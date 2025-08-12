@@ -18,12 +18,13 @@ public class GlobalExceptionHandler {
 
         var errors = new HashMap<String, String>();
 
-        exception.getBindingResult()
-                .getFieldErrors()
-                .forEach(error ->
-                        errors.put(error.getField(),
-                                error.getDefaultMessage())
-                );
+        exception.getBindingResult().getFieldErrors().forEach(err ->
+                errors.put(err.getField(), err.getDefaultMessage())
+        );
+
+        exception.getBindingResult().getGlobalErrors().forEach(err ->
+                errors.put(err.getObjectName(), err.getDefaultMessage())
+        );
 
         return ResponseEntity.badRequest().body(errors);
     }

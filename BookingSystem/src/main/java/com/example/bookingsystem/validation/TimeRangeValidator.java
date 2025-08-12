@@ -17,6 +17,13 @@ public class TimeRangeValidator implements ConstraintValidator<ValidTimeRange, G
 
         if(startTime == null || endTime == null) return true;
 
-        return startTime.isBefore(endTime);
+        if (!startTime.isBefore(endTime)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate("Start time must be before end time")
+                    .addPropertyNode("startTime")
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;
     }
 }
