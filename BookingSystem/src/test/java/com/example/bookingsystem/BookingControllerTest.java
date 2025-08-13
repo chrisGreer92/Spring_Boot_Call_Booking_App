@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,7 +48,7 @@ public class BookingControllerTest {
 
     @Test
     void createBooking_shouldReturnCreated() throws Exception {
-        CreateAvailableSlotDto request = createValidBookingRequest();
+        CreateAvailableSlotDto request = createValidBookingSlot();
 
         Booking entity = new Booking();
         entity.setId(1L);
@@ -79,7 +80,7 @@ public class BookingControllerTest {
 
     @Test
     void createBooking_shouldReturnBadRequest_whenStartTimeAfterEndTime() throws Exception {
-        CreateAvailableSlotDto request = createValidBookingRequest();
+        CreateAvailableSlotDto request = createValidBookingSlot();
         request.setStartTime(OffsetDateTime.now().plusDays(2));
         request.setEndTime(OffsetDateTime.now().plusDays(1));
 
@@ -88,6 +89,54 @@ public class BookingControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void requestBooking_returnsNotFound_whenBookingDoesNotExist() throws Exception {
+        RequestBookingDto request = createValidBookingRequest();
+
+        mockMvc.perform(patch("/booking/{id}/request", 999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void requestBooking_returnsConflict_whenBookingNotAvailable() throws Exception {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(PENDING); //NOT AVAILABLE
+        bookingRepository.save(booking);
+
+        Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+
+        RequestBookingDto request = createValidBookingRequest();
+        mockMvc.perform(patch("/booking/{id}/request", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void requestBooking_returnsOk_andSetsPending_whenValid() throws Exception {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(AVAILABLE);
+        bookingRepository.save(booking);
+
+        Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+
+        RequestBookingDto request = createValidBookingRequest();
+        mockMvc.perform(patch("/booking/{id}/request", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+
+        Booking updated = bookingRepository.findById(booking.getId()).orElseThrow();
+        assertEquals(PENDING, updated.getStatus());
+    }
+
+
 
     @Test
     void requestBooking_shouldReturnBadRequest_whenInvalidPhone() throws Exception {
@@ -101,7 +150,7 @@ public class BookingControllerTest {
 
         Mockito.when(bookingRepository.findById(eq(1L))).thenReturn(Optional.of(booking));
 
-        mockMvc.perform(post("/booking/1/request")
+        mockMvc.perform(patch("/booking/1/request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -210,10 +259,18 @@ public class BookingControllerTest {
         Mockito.verify(bookingRepository, Mockito.never()).delete(Mockito.any());
     }
 
-    private CreateAvailableSlotDto createValidBookingRequest() {
+    private CreateAvailableSlotDto createValidBookingSlot() {
         CreateAvailableSlotDto request = new CreateAvailableSlotDto();
         request.setStartTime(OffsetDateTime.now().plusDays(1));
         request.setEndTime(OffsetDateTime.now().plusDays(1).plusHours(1));
+        return request;
+    }
+
+    private RequestBookingDto createValidBookingRequest() {
+        RequestBookingDto request = new RequestBookingDto();
+        request.setName("Valid Name");
+        request.setPhone("01234567890");
+        request.setEmail("valid@email.com");
         return request;
     }
 

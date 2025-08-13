@@ -3,7 +3,6 @@ package com.example.bookingsystem;
 import com.example.bookingsystem.dtos.BookingDto;
 import com.example.bookingsystem.entities.Booking;
 import com.example.bookingsystem.mappers.BookingMapper;
-import com.example.bookingsystem.model.BookingStatus;
 import com.example.bookingsystem.repositories.BookingRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static com.example.bookingsystem.model.BookingStatus.*;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -44,16 +44,26 @@ public class SecurityTest {
     private String adminPassword;
 
     private static final String VALID_BOOKING_JSON = """
+         {
+          "startTime": "%s",
+          "endTime": "%s"
+        }
+        """.formatted(
+                    OffsetDateTime.now().plusDays(1).toString(),
+                    OffsetDateTime.now().plusDays(1).plusHours(1).toString()
+            );
+
+    private static final String REQUEST_BOOKING_JSON = """
         {
           "name": "Chris",
           "email": "chris@example.com",
           "phone": "07977904132",
-          "startTime": "12-09-2025 10:00",
-          "endTime": "12-09-2025 11:00",
           "topic": "Consultation",
           "notes": "Please call on time"
         }
         """;
+
+
 
     private static final String UPDATE_STATUS_JSON = """
         {"status": "CONFIRMED"}""";
@@ -71,7 +81,7 @@ public class SecurityTest {
     }
 
     @Test
-    void createBooking_isPublic() throws Exception {
+    void createBooking_requiresAuth() throws Exception {
         Booking bookingEntity = new Booking();
         bookingEntity.setId(1L);
 
@@ -85,11 +95,26 @@ public class SecurityTest {
         Mockito.when(bookingRepository.save(Mockito.any()))
                 .thenReturn(bookingEntity);
 
-        //No auth required (currently), should accept
+        // Without auth
         mockMvc.perform(post("/booking")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BOOKING_JSON))
+                .andExpect(status().isUnauthorized());
+
+        // With auth
+        mockMvc.perform(post("/booking")
+                        .with(httpBasic(adminUsername, adminPassword))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(VALID_BOOKING_JSON))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void requestBooking_isPublic() throws Exception {
+        mockMvc.perform(patch("/booking/{id}/request", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(REQUEST_BOOKING_JSON))
+                .andExpect(status().isNotFound()); //Not found means still auth (didn't create and add)
     }
 
     @Test
