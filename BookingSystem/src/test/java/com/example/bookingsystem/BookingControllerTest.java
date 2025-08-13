@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -175,6 +174,32 @@ public class BookingControllerTest {
         mockMvc.perform(get("/booking?sort=invalid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    void deleteBooking_shouldReturnNoContent_whenBookingExists() throws Exception {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(PENDING);
+
+        Mockito.when(bookingRepository.findById(1L))
+                .thenReturn(Optional.of(booking));
+
+        mockMvc.perform(delete("/booking/1"))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(bookingRepository, Mockito.times(1)).delete(booking);
+    }
+
+    @Test
+    void deleteBooking_shouldReturnNotFound_whenBookingMissing() throws Exception {
+        Mockito.when(bookingRepository.findById(1L))
+                .thenReturn(Optional.empty());
+
+        mockMvc.perform(delete("/booking/1"))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(bookingRepository, Mockito.never()).delete(Mockito.any());
     }
 
     private GenerateBookingDto createValidBookingRequest() {

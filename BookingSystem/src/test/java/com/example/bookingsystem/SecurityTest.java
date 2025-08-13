@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static com.example.bookingsystem.model.BookingStatus.*;
 
 import java.util.Optional;
 
@@ -96,7 +97,7 @@ public class SecurityTest {
 
         Booking booking = new Booking();
         booking.setId(1L);
-        booking.setStatus(BookingStatus.PENDING);
+        booking.setStatus(PENDING);
         Mockito.when(bookingRepository.findById(1L))
                 .thenReturn(Optional.of(booking));
 
@@ -112,5 +113,26 @@ public class SecurityTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(UPDATE_STATUS_JSON))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteBooking_requiresAuth() throws Exception {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(PENDING);
+        Mockito.when(bookingRepository.findById(1L))
+                .thenReturn(Optional.of(booking));
+
+        // No Auth leads to 401
+        mockMvc.perform(delete("/booking/1"))
+                .andExpect(status().isUnauthorized());
+
+        // Basic Auth leads to 204
+        mockMvc.perform(delete("/booking/1")
+                        .with(httpBasic(adminUsername, adminPassword)))
+                .andExpect(status().isNoContent());
+
+        // Verify delete was actually called too (for auth)
+        Mockito.verify(bookingRepository, Mockito.times(1)).delete(booking);
     }
 }

@@ -83,4 +83,19 @@ public class BookingController {
                 .map(bookingMapper::toDto)
                 .toList();
     }
+
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBooking(
+            @PathVariable(name = "id") Long id
+    ){
+        var booking = bookingRepository.findById(id).orElse(null);
+
+        if(booking == null) return ResponseEntity.notFound().build();
+
+        bookingRepository.delete(booking);
+
+        return ResponseEntity.noContent().build();
+    }
 }
