@@ -37,16 +37,16 @@ public class BookingController {
 
         bookingRepository.save(booking);
 
-        var bookingDto = bookingMapper.toDto(booking);
+        var dto = bookingMapper.toDto(booking);
         var uri = uriBuilder.path("/booking/{id}")
-                .buildAndExpand(bookingDto.getId())
+                .buildAndExpand(dto.getId())
                 .toUri();
 
-        return ResponseEntity.created(uri).body(bookingDto);
+        return ResponseEntity.created(uri).body(dto);
     }
 
     @PatchMapping("/{id}/request")
-    public ResponseEntity<ConfirmPendingDto> requestBooking(
+    public ResponseEntity<ConfirmedPendingDto> requestBooking(
             @PathVariable Long id,
             @RequestBody @Valid RequestBookingDto request
     ) {

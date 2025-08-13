@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-public class ConfirmPendingDto {
+public class ConfirmedPendingDto {
 
     private String name;
     private String email;
