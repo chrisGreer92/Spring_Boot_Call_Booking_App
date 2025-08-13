@@ -1,12 +1,15 @@
 package com.example.bookingsystem.entities;
 
 import com.example.bookingsystem.model.BookingStatus;
+
+import static com.example.bookingsystem.model.BookingStatus.AVAILABLE;
 import static com.example.bookingsystem.model.BookingStatus.PENDING;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 
 @Entity
@@ -36,19 +39,19 @@ public class Booking {
     private String notes;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private OffsetDateTime startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private OffsetDateTime endTime;
 
     @Column(name = "time_zone")
     private String timeZone;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private BookingStatus status = PENDING;
+    private BookingStatus status = AVAILABLE;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private OffsetDateTime createdAt = OffsetDateTime.now();
 
 }

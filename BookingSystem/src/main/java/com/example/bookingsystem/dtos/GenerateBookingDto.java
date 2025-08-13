@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -29,12 +30,12 @@ public class GenerateBookingDto {
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     @NotNull(message = "Start time is required")
     @Future(message = "Start time must be in the future")
-    private LocalDateTime startTime;
+    private OffsetDateTime startTime;
 
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
     @NotNull(message = "End time is required")
     @Future(message = "End time must be in the future")
-    private LocalDateTime endTime;
+    private OffsetDateTime endTime;
 
     private String topic;
 
