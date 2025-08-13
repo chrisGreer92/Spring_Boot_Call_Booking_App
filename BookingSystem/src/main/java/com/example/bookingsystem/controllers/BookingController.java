@@ -1,18 +1,19 @@
 package com.example.bookingsystem.controllers;
 
-import com.example.bookingsystem.dtos.BookingDto;
-import com.example.bookingsystem.dtos.GenerateBookingDto;
-import com.example.bookingsystem.dtos.UpdateBookingStatusDto;
+import com.example.bookingsystem.dtos.*;
 import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.repositories.BookingRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Set;
+
+import static com.example.bookingsystem.model.BookingStatus.*;
 
 @RestController
 @RequestMapping("/booking")
@@ -28,8 +29,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<BookingDto> createBooking(
             @RequestBody @Valid
-            GenerateBookingDto request,
-
+            CreateAvailableSlotDto request,
             UriComponentsBuilder uriBuilder
     ){
 
@@ -44,6 +44,25 @@ public class BookingController {
 
         return ResponseEntity.created(uri).body(bookingDto);
     }
+
+    @PatchMapping("/{id}/request")
+    public ResponseEntity<ConfirmPendingDto> requestBooking(
+            @PathVariable Long id,
+            @RequestBody @Valid RequestBookingDto request
+    ) {
+        var booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null) return ResponseEntity.notFound().build();
+        if (booking.getStatus() != AVAILABLE) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
+        bookingMapper.applyRequestToBooking(request, booking);
+        booking.setStatus(PENDING);
+        bookingRepository.save(booking);
+
+        var dto = bookingMapper.toPendingDto(booking);
+
+        return ResponseEntity.ok(dto);
+    }
+
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateBookingStatus(

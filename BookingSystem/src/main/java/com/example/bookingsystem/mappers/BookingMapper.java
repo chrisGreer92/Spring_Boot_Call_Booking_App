@@ -1,10 +1,15 @@
 package com.example.bookingsystem.mappers;
 
 import com.example.bookingsystem.dtos.BookingDto;
-import com.example.bookingsystem.dtos.GenerateBookingDto;
+import com.example.bookingsystem.dtos.ConfirmPendingDto;
+import com.example.bookingsystem.dtos.CreateAvailableSlotDto;
+import com.example.bookingsystem.dtos.RequestBookingDto;
 import com.example.bookingsystem.entities.Booking;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
+import java.awt.print.Book;
 
 @Mapper(componentModel = "spring")
 public interface BookingMapper {
@@ -14,5 +19,9 @@ public interface BookingMapper {
 
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    Booking toEntity(GenerateBookingDto request);
+    Booking toEntity(CreateAvailableSlotDto request);
+
+    ConfirmPendingDto toPendingDto(Booking booking);
+
+    void applyRequestToBooking(RequestBookingDto request, @MappingTarget Booking booking);
 }

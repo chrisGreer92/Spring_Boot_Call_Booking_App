@@ -40,7 +40,7 @@ public class SecurityConfig {
 //                     .anyRequest().permitAll()
 
                     // Production: Only POST /booking is public
-                    .requestMatchers(HttpMethod.POST, "/booking/**").permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/booking/*/request").permitAll()
                     .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults());
 

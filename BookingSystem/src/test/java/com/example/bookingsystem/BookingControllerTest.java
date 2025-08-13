@@ -2,7 +2,8 @@ package com.example.bookingsystem;
 
 import com.example.bookingsystem.controllers.BookingController;
 import com.example.bookingsystem.dtos.BookingDto;
-import com.example.bookingsystem.dtos.GenerateBookingDto;
+import com.example.bookingsystem.dtos.CreateAvailableSlotDto;
+import com.example.bookingsystem.dtos.RequestBookingDto;
 import com.example.bookingsystem.dtos.UpdateBookingStatusDto;
 import com.example.bookingsystem.entities.Booking;
 import com.example.bookingsystem.mappers.BookingMapper;
@@ -19,7 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +47,7 @@ public class BookingControllerTest {
 
     @Test
     void createBooking_shouldReturnCreated() throws Exception {
-        GenerateBookingDto request = createValidBookingRequest();
+        CreateAvailableSlotDto request = createValidBookingRequest();
 
         Booking entity = new Booking();
         entity.setId(1L);
@@ -66,10 +67,8 @@ public class BookingControllerTest {
 
     @Test
     void createBooking_shouldReturnBadRequest_whenMissingFields() throws Exception {
-        GenerateBookingDto request = new GenerateBookingDto();
+        RequestBookingDto request = new RequestBookingDto();
         request.setEmail("chris@example.com");
-        request.setStartTime(LocalDateTime.now().plusDays(1));
-        request.setEndTime(LocalDateTime.now().plusDays(1).plusHours(1));
 
         mockMvc.perform(post("/booking")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,28 +76,37 @@ public class BookingControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void createBooking_shouldReturnBadRequest_whenInvalidPhone() throws Exception {
-        GenerateBookingDto request = createValidBookingRequest();
-        request.setPhone("invalid-phone");
-
-        mockMvc.perform(post("/booking")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
 
     @Test
     void createBooking_shouldReturnBadRequest_whenStartTimeAfterEndTime() throws Exception {
-        GenerateBookingDto request = createValidBookingRequest();
-        request.setStartTime(LocalDateTime.now().plusDays(2));
-        request.setEndTime(LocalDateTime.now().plusDays(1));
+        CreateAvailableSlotDto request = createValidBookingRequest();
+        request.setStartTime(OffsetDateTime.now().plusDays(2));
+        request.setEndTime(OffsetDateTime.now().plusDays(1));
 
-        mockMvc.perform(post("/booking")
+        mockMvc.perform(patch("/booking/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void requestBooking_shouldReturnBadRequest_whenInvalidPhone() throws Exception {
+        RequestBookingDto request = new RequestBookingDto();
+        request.setPhone("invalid-phone");
+        request.setName("Valid Name");
+
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(PENDING);
+
+        Mockito.when(bookingRepository.findById(eq(1L))).thenReturn(Optional.of(booking));
+
+        mockMvc.perform(post("/booking/1/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
 
     @Test
     void updateBookingStatus_shouldReturnNoContent() throws Exception {
@@ -202,15 +210,10 @@ public class BookingControllerTest {
         Mockito.verify(bookingRepository, Mockito.never()).delete(Mockito.any());
     }
 
-    private GenerateBookingDto createValidBookingRequest() {
-        GenerateBookingDto request = new GenerateBookingDto();
-        request.setName("Chris");
-        request.setEmail("chris@example.com");
-        request.setPhone("07977904132");
-        request.setStartTime(LocalDateTime.now().plusDays(1));
-        request.setEndTime(LocalDateTime.now().plusDays(1).plusHours(1));
-        request.setTopic("Consultation");
-        request.setNotes("Please call on time");
+    private CreateAvailableSlotDto createValidBookingRequest() {
+        CreateAvailableSlotDto request = new CreateAvailableSlotDto();
+        request.setStartTime(OffsetDateTime.now().plusDays(1));
+        request.setEndTime(OffsetDateTime.now().plusDays(1).plusHours(1));
         return request;
     }
 

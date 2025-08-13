@@ -1,15 +1,14 @@
 package com.example.bookingsystem.validation;
 
-import com.example.bookingsystem.dtos.GenerateBookingDto;
+import com.example.bookingsystem.dtos.CreateAvailableSlotDto;
+import com.example.bookingsystem.dtos.RequestBookingDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import java.time.LocalDateTime;
-
-public class TimeRangeValidator implements ConstraintValidator<ValidTimeRange, GenerateBookingDto> {
+public class TimeRangeValidator implements ConstraintValidator<ValidTimeRange, CreateAvailableSlotDto> {
 
     @Override
-    public boolean isValid(GenerateBookingDto dto, ConstraintValidatorContext context) {
+    public boolean isValid(CreateAvailableSlotDto dto, ConstraintValidatorContext context) {
         if(dto == null) return true;
 
         var startTime = dto.getStartTime();
