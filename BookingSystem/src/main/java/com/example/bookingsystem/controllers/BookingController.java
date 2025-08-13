@@ -2,6 +2,7 @@ package com.example.bookingsystem.controllers;
 
 import com.example.bookingsystem.dtos.*;
 import com.example.bookingsystem.mappers.BookingMapper;
+import com.example.bookingsystem.model.BookingStatus;
 import com.example.bookingsystem.repositories.BookingRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -87,15 +88,19 @@ public class BookingController {
                     required = false,
                     defaultValue = "",
                     name = "sort")
-            String sort
-    ){
+            String sort,
+            @RequestParam(required = false, name = "status")
+            BookingStatus status
 
+    ){
         if(!SORT_FIELDS.contains(sort))
             sort = DEFAULT_SORT;
 
-        return bookingRepository
-                .findAll(Sort.by(sort))
-                .stream()
+        var bookings = (status != null)
+                ? bookingRepository.findAllByStatus(status, Sort.by(sort))
+                : bookingRepository.findAll(Sort.by(sort));
+
+        return bookings.stream()
                 .map(bookingMapper::toDto)
                 .toList();
     }
