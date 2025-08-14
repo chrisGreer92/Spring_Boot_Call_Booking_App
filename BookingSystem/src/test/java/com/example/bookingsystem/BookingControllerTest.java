@@ -200,16 +200,17 @@ public class BookingControllerTest {
     @Test
     void getAllBookings_shouldReturnList() throws Exception {
         Booking booking = new Booking();
-        BookingDto dto = new BookingDto();
-        dto.setId(1L);
+        BookingDto dto = new BookingDto(); dto.setId(1L);
 
-        Mockito.when(bookingRepository
-                        .findAll(any(Sort.class)))
-                        .thenReturn(List.of(booking)
-                    );
+
+        Mockito.when(bookingRepository.findAllByDeleted(
+                Mockito.eq(false),
+                Mockito.any(Sort.class)
+        )).thenReturn(List.of(booking));
+
         Mockito.when(bookingMapper.toDto(booking)).thenReturn(dto);
 
-        mockMvc.perform(get("/booking?sort=id"))
+        mockMvc.perform(get("/booking?sort=id&showPast=true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
@@ -217,15 +218,13 @@ public class BookingControllerTest {
     @Test
     void getAllBookings_shouldFallbackToId_whenInvalidSortField() throws Exception {
         Booking booking = new Booking();
-        BookingDto dto = new BookingDto();
-        dto.setId(1L);
+        BookingDto dto = new BookingDto(); dto.setId(1L);
 
-        Mockito.when(bookingRepository
-                        .findAll(any(org.springframework.data.domain.Sort.class))
-                    ).thenReturn(List.of(booking));
+        Mockito.when(bookingRepository.findAllByDeleted(eq(false), eq(Sort.by("id"))))
+                .thenReturn(List.of(booking));
         Mockito.when(bookingMapper.toDto(booking)).thenReturn(dto);
 
-        mockMvc.perform(get("/booking?sort=invalid"))
+        mockMvc.perform(get("/booking?sort=invalid&showPast=true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
