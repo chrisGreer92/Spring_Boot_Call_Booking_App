@@ -10,7 +10,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+
     List<Booking> findAllByStatus(BookingStatus status, Sort by);
+    List<Booking> findAllByDeletedAndStatus(boolean deleted, BookingStatus status, Sort by);
+    List<Booking> findAllByDeleted(boolean deleted, Sort by);
 
     @Query(value = """
     SELECT *
@@ -20,4 +23,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     ORDER BY start_time
     """, nativeQuery = true)
     List<Booking> findAllByStatusChronological(@Param("status") BookingStatus status);
+
+
 }

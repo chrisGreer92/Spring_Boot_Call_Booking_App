@@ -29,8 +29,7 @@ public class BookingController {
 
     @PostMapping
     public ResponseEntity<BookingDto> createBooking(
-            @RequestBody @Valid
-            CreateAvailableSlotDto request,
+            @RequestBody @Valid CreateAvailableSlotDto request,
             UriComponentsBuilder uriBuilder
     ){
 
@@ -68,9 +67,7 @@ public class BookingController {
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateBookingStatus(
             @PathVariable Long id,
-
-            @RequestBody @Valid
-            UpdateBookingStatusDto request
+            @RequestBody @Valid UpdateBookingStatusDto request
     ){
         var booking = bookingRepository.findById(id).orElse(null);
         if(booking == null) return ResponseEntity.notFound().build();
@@ -84,25 +81,24 @@ public class BookingController {
 
     @GetMapping
     public Iterable<BookingDto> getAllBookings(
-            @RequestParam(
-                    required = false,
-                    defaultValue = "",
-                    name = "sort")
+            @RequestParam(required = false, defaultValue = "", name = "sort")
             String sort,
+            
             @RequestParam(required = false, name = "status")
-            BookingStatus status
+            BookingStatus status,
+
+            @RequestParam(required = false, defaultValue = "false", name = "showDeleted")
+            boolean deleted
 
     ){
         if(!SORT_FIELDS.contains(sort))
             sort = DEFAULT_SORT;
 
         var bookings = (status != null)
-                ? bookingRepository.findAllByStatus(status, Sort.by(sort))
-                : bookingRepository.findAll(Sort.by(sort));
+                ? bookingRepository.findAllByDeletedAndStatus(deleted, status, Sort.by(sort))
+                : bookingRepository.findAllByDeleted(deleted, Sort.by(sort));
 
-        return bookings.stream()
-                .map(bookingMapper::toDto)
-                .toList();
+        return bookings.stream().map(bookingMapper::toDto).toList();
     }
 
 
