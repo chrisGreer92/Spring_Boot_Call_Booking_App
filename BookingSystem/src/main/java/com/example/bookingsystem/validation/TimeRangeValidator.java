@@ -1,7 +1,6 @@
 package com.example.bookingsystem.validation;
 
 import com.example.bookingsystem.dtos.CreateAvailableSlotDto;
-import com.example.bookingsystem.dtos.RequestBookingDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

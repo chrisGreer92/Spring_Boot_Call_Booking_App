@@ -3,12 +3,10 @@ package com.example.bookingsystem.entities;
 import com.example.bookingsystem.model.BookingStatus;
 
 import static com.example.bookingsystem.model.BookingStatus.AVAILABLE;
-import static com.example.bookingsystem.model.BookingStatus.PENDING;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 

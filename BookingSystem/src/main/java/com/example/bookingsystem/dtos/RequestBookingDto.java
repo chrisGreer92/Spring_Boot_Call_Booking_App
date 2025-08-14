@@ -1,6 +1,5 @@
 package com.example.bookingsystem.dtos;
 
-import com.example.bookingsystem.validation.ValidTimeRange;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,7 +1,6 @@
 package com.example.bookingsystem.dtos;
 
 import com.example.bookingsystem.validation.ValidTimeRange;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
