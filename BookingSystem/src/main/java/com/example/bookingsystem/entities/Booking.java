@@ -54,4 +54,7 @@ public class Booking {
     @Column(name = "created_at")
     private OffsetDateTime createdAt = OffsetDateTime.now();
 
+
+    private boolean deleted = false;
+
 }

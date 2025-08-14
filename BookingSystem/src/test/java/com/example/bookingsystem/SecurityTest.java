@@ -59,7 +59,7 @@ public class SecurityTest {
           "email": "chris@example.com",
           "phone": "07977904132",
           "topic": "Consultation",
-          "notes": "Please call on time"
+          "notes": "Please call"
         }
         """;
 

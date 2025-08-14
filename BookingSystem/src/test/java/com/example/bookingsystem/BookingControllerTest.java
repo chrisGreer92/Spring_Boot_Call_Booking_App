@@ -104,7 +104,7 @@ public class BookingControllerTest {
     void requestBooking_returnsConflict_whenBookingNotAvailable() throws Exception {
         Booking booking = new Booking();
         booking.setId(1L);
-        booking.setStatus(PENDING); //NOT AVAILABLE
+        booking.setStatus(PENDING); //Not AVAILABLE
         bookingRepository.save(booking);
 
         Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
@@ -148,7 +148,7 @@ public class BookingControllerTest {
         booking.setId(1L);
         booking.setStatus(PENDING);
 
-        Mockito.when(bookingRepository.findById(eq(1L))).thenReturn(Optional.of(booking));
+        Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
         mockMvc.perform(patch("/booking/1/request")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -166,7 +166,7 @@ public class BookingControllerTest {
         booking.setId(1L);
         booking.setStatus(PENDING);
 
-        Mockito.when(bookingRepository.findById(eq(1L))).thenReturn(Optional.of(booking));
+        Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
         mockMvc.perform(patch("/booking/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -179,9 +179,7 @@ public class BookingControllerTest {
         UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
         statusDto.setStatus(CONFIRMED);
 
-        Mockito.when(bookingRepository
-                        .findById(eq(999L))
-                    ).thenReturn(Optional.empty());
+        Mockito.when(bookingRepository.findById(999L)).thenReturn(Optional.empty());
 
         mockMvc.perform(patch("/booking/999")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -209,8 +207,7 @@ public class BookingControllerTest {
                         .findAll(any(Sort.class)))
                         .thenReturn(List.of(booking)
                     );
-        Mockito.when(bookingMapper.toDto(booking))
-                    .thenReturn(dto);
+        Mockito.when(bookingMapper.toDto(booking)).thenReturn(dto);
 
         mockMvc.perform(get("/booking?sort=id"))
                 .andExpect(status().isOk())
@@ -239,8 +236,7 @@ public class BookingControllerTest {
         booking.setId(1L);
         booking.setStatus(PENDING);
 
-        Mockito.when(bookingRepository.findById(1L))
-                .thenReturn(Optional.of(booking));
+        Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
         mockMvc.perform(delete("/booking/1"))
                 .andExpect(status().isNoContent());
