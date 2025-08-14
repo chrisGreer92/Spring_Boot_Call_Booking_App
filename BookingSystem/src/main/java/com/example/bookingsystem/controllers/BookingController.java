@@ -1,6 +1,7 @@
 package com.example.bookingsystem.controllers;
 
 import com.example.bookingsystem.dtos.*;
+import com.example.bookingsystem.entities.Booking;
 import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.model.BookingStatus;
 import com.example.bookingsystem.repositories.BookingRepository;
@@ -10,8 +11,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 import static com.example.bookingsystem.model.BookingStatus.*;
@@ -88,15 +92,27 @@ public class BookingController {
             BookingStatus status,
 
             @RequestParam(required = false, defaultValue = "false", name = "showDeleted")
-            boolean deleted
+            boolean deleted,
+
+            @RequestParam(required = false, defaultValue = "false", name = "showPast")
+            boolean showPast
 
     ){
         if(!SORT_FIELDS.contains(sort))
             sort = DEFAULT_SORT;
 
-        var bookings = (status != null)
-                ? bookingRepository.findAllByDeletedAndStatus(deleted, status, Sort.by(sort))
-                : bookingRepository.findAllByDeleted(deleted, Sort.by(sort));
+        List<Booking> bookings;
+        if (showPast) {
+            bookings = (status != null)
+                    ? bookingRepository.findAllByDeletedAndStatus(deleted, status, Sort.by(sort))
+                    : bookingRepository.findAllByDeleted(deleted, Sort.by(sort));
+        } else {
+            bookings = (status != null)
+                    //N.B Can't combine showing future only and sorting by something else other than start time
+                    //Could implement but wouldn't be as clean, and it's not necessary for API
+                    ? bookingRepository.findFutureFilterStatus(deleted, status.name())
+                    : bookingRepository.findFuture(deleted);
+        }
 
         return bookings.stream().map(bookingMapper::toDto).toList();
     }

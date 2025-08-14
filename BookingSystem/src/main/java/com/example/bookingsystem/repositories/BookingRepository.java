@@ -16,13 +16,17 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByDeleted(boolean deleted, Sort by);
 
     @Query(value = """
-    SELECT *
-    FROM booking
-    WHERE deleted = false
-      AND status = :status
-    ORDER BY start_time
+    SELECT * FROM booking WHERE deleted = :deleted AND status = :status AND start_time > NOW() ORDER BY start_time
     """, nativeQuery = true)
-    List<Booking> findAllByStatusChronological(@Param("status") BookingStatus status);
+    List<Booking> findFutureFilterStatus(
+            @Param("deleted") boolean deleted,
+            @Param("status") String status
+    );
+
+    @Query(value = """
+    SELECT * FROM booking WHERE deleted = :deleted AND start_time > NOW() ORDER BY start_time
+    """, nativeQuery = true)
+    List<Booking> findFuture(@Param("deleted") boolean deleted);
 
 
 }
