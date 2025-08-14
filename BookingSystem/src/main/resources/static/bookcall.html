@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Calendar</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .highlight-box h2 {text-decoration: none !important;}
+    </style>
+</head>
+<body>
+<section class="highlight-box" style="max-width: 900px; margin: 2rem auto; position: relative;">
+    <h2>Book a Call</h2>
+    <a class="button" href="index.html" target="_blank"
+       style="position: absolute; top: 1rem; right: 1rem;">
+        Home
+    </a>
+    <div id="calendar"></div>
+</section>
+
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            height: 'auto',
+            allDaySlot: false,
+            slotMinTime: "09:00:00",
+            slotMaxTime: "19:00:00",
+            firstDay: 1,
+            hiddenDays: [0, 6], //Hides Sat & Sun
+            buttonText: {today: 'This Week'},
+            events: async (fetchInfo, successCallback, failureCallback) => {
+                try {
+                    const res = await fetch('/booking?status=AVAILABLE&deleted=false&sort=startTime');
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const bookings = await res.json();
+
+                    // Map to FullCalendar format
+                    const events = bookings.map(b => ({
+                        id: b.id,
+                        title: b.topic || 'Available',
+                        start: b.startTime,
+                        end: b.endTime
+                    }));
+
+                    console.log('Loaded events:', events);
+                    successCallback(events);
+                } catch (err) {
+                    console.error('Error fetching bookings', err);
+                    failureCallback(err);
+                }
+            }
+        });
+
+        calendar.render();
+    });
+</script>
+</body>
+</html>

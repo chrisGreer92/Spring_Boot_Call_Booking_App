@@ -83,7 +83,7 @@ public class BookingController {
     public Iterable<BookingDto> getAllBookings(
             @RequestParam(required = false, defaultValue = "", name = "sort")
             String sort,
-            
+
             @RequestParam(required = false, name = "status")
             BookingStatus status,
 
