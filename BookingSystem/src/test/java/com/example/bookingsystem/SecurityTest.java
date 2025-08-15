@@ -88,7 +88,7 @@ public class SecurityTest {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setId(1L);
 
-        Mockito.when(bookingMapper.toEntity(Mockito.any()))
+        Mockito.when(bookingMapper.availableDtoToEntity(Mockito.any()))
                 .thenReturn(bookingEntity);
         Mockito.when(bookingMapper.toDto(Mockito.any()))
                 .thenReturn(bookingDto);

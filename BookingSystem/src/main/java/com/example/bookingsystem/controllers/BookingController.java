@@ -11,10 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -37,7 +35,7 @@ public class BookingController {
             UriComponentsBuilder uriBuilder
     ){
 
-        var booking = bookingMapper.toEntity(request);
+        var booking = bookingMapper.availableDtoToEntity(request);
 
         bookingRepository.save(booking);
 
@@ -50,7 +48,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{id}/request")
-    public ResponseEntity<ConfirmedPendingDto> requestBooking(
+    public ResponseEntity<Void> requestBooking(
             @PathVariable Long id,
             @RequestBody @Valid RequestBookingDto request
     ) {
@@ -62,9 +60,7 @@ public class BookingController {
         booking.setStatus(PENDING);
         bookingRepository.save(booking);
 
-        var dto = bookingMapper.toPendingDto(booking);
-
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.noContent().build();
     }
 
 

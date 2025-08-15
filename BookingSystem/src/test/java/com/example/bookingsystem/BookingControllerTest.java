@@ -56,7 +56,7 @@ public class BookingControllerTest {
         BookingDto responseDto = new BookingDto();
         responseDto.setId(1L);
 
-        Mockito.when(bookingMapper.toEntity(any())).thenReturn(entity);
+        Mockito.when(bookingMapper.availableDtoToEntity(any())).thenReturn(entity);
         Mockito.when(bookingMapper.toDto(any())).thenReturn(responseDto);
 
         mockMvc.perform(post("/booking")
