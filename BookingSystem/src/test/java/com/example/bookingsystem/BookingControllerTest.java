@@ -129,7 +129,7 @@ public class BookingControllerTest {
         mockMvc.perform(patch("/booking/{id}/request", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
 
         Booking updated = bookingRepository.findById(booking.getId()).orElseThrow();
