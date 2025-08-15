@@ -2,6 +2,7 @@ package com.example.bookingsystem.config;
 
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -38,8 +39,13 @@ public class SecurityConfig {
                     // For (manual) api testing
 //                     .anyRequest().permitAll()
 
-                    // Production: Only POST /booking is public
+                    // Production: Only Patch request and Defined GET for api is permitted
                     .requestMatchers(HttpMethod.PATCH, "/booking/*/request").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/booking").permitAll()
+
+                    // Plus any static resources
+                    .requestMatchers("/", "/calendar.js", "/style.css", "/index.html", "/bookcall.html").permitAll()
+//                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                     .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults());
 

@@ -80,6 +80,13 @@ public class BookingController {
     }
 
     @GetMapping
+    public Iterable<BookingDto> getAvailableBookings(){
+        return bookingRepository
+                .findFutureFilterStatus(false, AVAILABLE.name())
+                .stream().map(bookingMapper::toDto).toList();
+    }
+
+    @GetMapping("/admin")
     public Iterable<BookingDto> getAllBookings(
             @RequestParam(required = false, defaultValue = "", name = "sort")
             String sort,

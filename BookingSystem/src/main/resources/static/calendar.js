@@ -1,6 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');
 
+    const params = new URLSearchParams(location.search);
+    const adminMode = params.get('admin') === 'true';
+
+    const getURL = adminMode
+        ? '/booking/admin?showPast=true&deleted=false&sort=startTime' //Admin gets specific (may tweak)
+        : '/booking'; //Public gets the hardcoded return
+
+    const statusColors = {
+        available: '#007bff',
+        pending: '#800080',
+        rejected: '#ff0000',
+        cancelled: '#000000'
+    };
+
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         height: 'auto',
@@ -13,16 +27,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         events: async (fetchInfo, successCallback, failureCallback) => {
             try {
-                const res = await fetch('/booking?status=AVAILABLE&deleted=false&sort=startTime');
+                const res = await fetch(getURL);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const bookings = await res.json();
 
-                const events = bookings.map(b => ({
-                    id: b.id,
-                    title: b.topic || 'Available',
-                    start: b.startTime,
-                    end: b.endTime
-                }));
+                const events = bookings.map(b => {
+                    const statusLower = b.status.toLowerCase();
+                    const statusFormatted = statusLower.charAt(0).toUpperCase() + statusLower.slice(1);
+
+                    return {
+                        id: b.id,
+                        title: b.topic ? b.topic : statusFormatted,
+                        start: b.startTime,
+                        end: b.endTime,
+                        color: statusColors[statusLower] || '#808080'
+                    };
+                });
 
                 console.log('Loaded events:', events);
                 successCallback(events);
