@@ -69,14 +69,9 @@ public class SecurityTest {
         {"status": "CONFIRMED"}""";
 
     @Test
-    void getAllBookings_requiresAuth() throws Exception {
-        // No auth leads to 401
+    void getAllBookings_requiresNoAuth() throws Exception {
+        // No auth leads to 200
         mockMvc.perform(get("/booking"))
-                .andExpect(status().isUnauthorized());
-
-        // Basic Auth leads to 200
-        mockMvc.perform(get("/booking")
-                        .with(httpBasic(adminUsername, adminPassword)))
                 .andExpect(status().isOk());
     }
 

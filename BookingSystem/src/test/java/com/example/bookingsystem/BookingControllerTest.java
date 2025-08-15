@@ -198,19 +198,19 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getAllBookings_shouldReturnList() throws Exception {
+    void getAvailableBookings_shouldReturnList() throws Exception {
         Booking booking = new Booking();
         BookingDto dto = new BookingDto(); dto.setId(1L);
 
 
-        Mockito.when(bookingRepository.findAllByDeleted(
-                Mockito.eq(false),
-                Mockito.any(Sort.class)
+        Mockito.when(bookingRepository.findFutureFilterStatus(
+                eq(false),
+                eq(AVAILABLE.name())
         )).thenReturn(List.of(booking));
 
         Mockito.when(bookingMapper.toDto(booking)).thenReturn(dto);
 
-        mockMvc.perform(get("/booking?sort=id&showPast=true"))
+        mockMvc.perform(get("/booking"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
@@ -224,7 +224,7 @@ public class BookingControllerTest {
                 .thenReturn(List.of(booking));
         Mockito.when(bookingMapper.toDto(booking)).thenReturn(dto);
 
-        mockMvc.perform(get("/booking?sort=invalid&showPast=true"))
+        mockMvc.perform(get("/booking/admin?sort=invalid&showPast=true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
