@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         eventClick: function (info) {
-            console.log("eventClick triggered. adminMode =", adminMode);
             if (adminMode) {
                 openAdminModal(info.event); //adminModal.js
             } else {
