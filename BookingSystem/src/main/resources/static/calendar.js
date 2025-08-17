@@ -71,19 +71,27 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Clicked');
             if (!adminMode) return; // only allow for admin
 
+            const options = {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
 
-            const startTime = info.startStr;
-            const endTime = info.endStr;
+            const startReadable = new Date(info.startStr).toLocaleString(undefined, options);
+            const endReadable   = new Date(info.endStr).toLocaleString(undefined, options);
 
-            if (!confirm(`Create a slot from ${startTime} to ${endTime}?`)){
+            if (!confirm(`Create Available slot?:\nStart: ${startReadable}\nEnd:   ${endReadable}`)) {
                 calendar.unselect();
                 return;
             }
 
             try {
                 await sendJSON('/booking', 'POST', {
-                    startTime: startTime,
-                    endTime: endTime
+                    startTime: info.startStr,
+                    endTime: info.endStr
                 });
                 alert('Slot created!');
                 calendar.refetchEvents();
