@@ -17,7 +17,7 @@
         Home
     </a>
     <div id="calendar"></div>
-    <!-- Hidden Booking Box-->
+    <!-- Hidden (User) Booking Box-->
     <div id="bookingModal" class="modal">
         <div class="modal-content">
             <h3>Book Slot</h3>
@@ -47,10 +47,61 @@
         </div>
     </div>
     <!-- Hidden Admin Box-->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h3>Update Booking</h3>
+
+            <input type="hidden" id="adminSlotId" />
+
+            <div class="field">
+                <label>Name</label>
+                <div id="adminName" class="readonly"></div>
+            </div>
+
+            <div class="field">
+                <label>Email</label>
+                <div id="adminEmail" class="readonly"></div>
+            </div>
+
+            <div class="field">
+                <label>Phone</label>
+                <div id="adminPhone" class="readonly"></div>
+            </div>
+
+            <div class="field">
+                <label>Topic</label>
+                <div id="adminTopic" class="readonly"></div>
+            </div>
+
+            <div class="field">
+                <label>Notes</label>
+                <div id="adminNotes" class="readonly"></div>
+            </div>
+
+            <div class="field">
+                <label for="adminStatus">Status</label>
+                <select id="adminStatus">
+                    <option value="AVAILABLE">Available</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="CONFIRMED">Confirmed</option>
+                    <option value="REJECTED">Rejected</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" id="closeAdminModal" class="button">Cancel</button>
+                <button type="button" id="saveAdminStatus" class="button">Save</button>
+            </div>
+        </div>
+    </div>
 </section>
 
 <!-- FullCalendar JS -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<!--My Scripts for general + User/Admin logic -->
 <script src="calendar.js"></script>
+<script src="userModal.js"></script>
+<script src="adminModal.js"></script>
 </body>
 </html>

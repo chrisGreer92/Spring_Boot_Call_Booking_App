@@ -40,7 +40,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         title: b.topic ? b.topic : statusFormatted,
                         start: b.startTime,
                         end: b.endTime,
-                        color: statusColors[statusLower] || '#808080'
+                        color: statusColors[statusLower] || '#808080',
+                        //Props for admin
+                        extendedProps: {
+                            status: b.status,
+                            name: b.name,
+                            email: b.email,
+                            phone: b.phone,
+                            topic: b.topic,
+                            notes: b.notes
+                        }
                     };
                 });
 
@@ -53,75 +62,37 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         eventClick: function (info) {
-            // Get relevent slot
-            document.getElementById('slotId').value = info.event.id;
-            document.querySelector('#bookingForm input[name="topic"]')
-                .value = info.event.title !== 'Available' ? info.event.title : '';
-
-            // Show Popover
-            document.getElementById('bookingModal').style.display = 'flex';
+            console.log("eventClick triggered. adminMode =", adminMode);
+            if (adminMode) {
+                openAdminModal(info.event); //adminModal.js
+            } else {
+                openUserModal(info.event); //userModal.js
+            }
         }
-    });
 
+    });
+    window.calendar = calendar;
     calendar.render();
 
-    // Popover setup
-    const bookingModal = document.getElementById('bookingModal');
-    const closeModalBtn = document.getElementById('closeModal');
-    const bookingForm = document.getElementById('bookingForm');
-
-    // Close button
-    closeModalBtn.addEventListener('click', function () {
-        bookingModal.style.display = 'none';
-        bookingForm.reset();
-    });
-
-    // Handle Request
-    bookingForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const formData = Object.fromEntries(new FormData(bookingForm).entries());
-
-        try {
-            const res = await fetch(`/booking/${formData.slotId}/request`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone,
-                    topic: formData.topic,
-                    notes: formData.notes
-                })
-            });
-
-            // Handle backend and potential errors
-            if (!res.ok) {
-                let errorMessage = `HTTP ${res.status}`;
-                try {
-                    const errorJson = await res.json();
-                    const firstKey = Object.keys(errorJson)[0];
-                    if (firstKey) {
-                        errorMessage = errorJson[firstKey];
-                    }
-                } catch {
-                    errorMessage = await res.text();
-                }
-                console.error('Booking failed:', errorMessage);
-                alert(`Failed to book slot.\n${errorMessage}`);
-                return;
-            }
-
-            // Success!
-            alert('Booking Requested!');
-            bookingModal.style.display = 'none';
-            bookingForm.reset();
-            calendar.refetchEvents();
-
-        } catch (err) {
-            // Handle fetch/network errors
-            console.error('Booking request error:', err);
-            alert(`Failed to book slot. ${err.message || err}`);
-        }
-    });
 });
+
+// Shared JSON helper (admin & user can reuse)
+async function sendJSON(url, method, payload) {
+    const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try {
+            const errorJson = await res.json();
+            const firstKey = Object.keys(errorJson)[0];
+            if (firstKey) msg = errorJson[firstKey];
+        } catch {
+            msg = await res.text();
+        }
+        throw new Error(msg);
+    }
+    return res.json().catch(() => ({}));
+}
