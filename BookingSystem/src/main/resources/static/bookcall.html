@@ -48,7 +48,11 @@
     </div>
     <!-- Hidden Admin Box-->
     <div id="adminModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="position: relative;">
+
+            <button type="button" id="deleteBookingBtn" class="button"
+                    style="position: absolute; top: 1rem; right: 1rem; background-color: #b30000;"
+            >DELETE</button>
             <h3>Update Booking</h3>
 
             <input type="hidden" id="adminSlotId" />
@@ -91,7 +95,7 @@
 
             <div class="modal-actions">
                 <button type="button" id="closeAdminModal" class="button">Cancel</button>
-                <button type="button" id="deleteBookingBtn" class="button" style="background-color: #b30000;">DELETE</button>
+<!--                <button type="button" id="deleteBookingBtn" class="button" style="background-color: #b30000;">DELETE</button>-->
                 <button type="button" id="saveAdminStatus" class="button">Save</button>
             </div>
         </div>
