@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const statusColors = {
         available: '#007bff',
         pending: '#800080',
+        accepted: '#3CB043',
         rejected: '#ff0000',
         cancelled: '#000000'
     };
