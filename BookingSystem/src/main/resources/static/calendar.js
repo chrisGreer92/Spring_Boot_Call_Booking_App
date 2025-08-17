@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
         hiddenDays: [0, 6], // Hides Sat & Sun
         buttonText: { today: 'This Week' },
 
+        //Can click and drag to create events
+        selectable: true,
+        selectMirror: true,
+
         events: async (fetchInfo, successCallback, failureCallback) => {
             try {
                 const res = await fetch(getURL);
@@ -59,6 +63,34 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (err) {
                 console.error('Error fetching bookings', err);
                 failureCallback(err);
+            }
+        },
+
+        // Click and drag to create slots
+        select: async function(info) {
+            console.log('Clicked');
+            if (!adminMode) return; // only allow for admin
+
+
+            const startTime = info.startStr;
+            const endTime = info.endStr;
+
+            if (!confirm(`Create a slot from ${startTime} to ${endTime}?`)){
+                calendar.unselect();
+                return;
+            }
+
+            try {
+                await sendJSON('/booking', 'POST', {
+                    startTime: startTime,
+                    endTime: endTime
+                });
+                alert('Slot created!');
+                calendar.refetchEvents();
+            } catch (err) {
+                alert(`Failed to create slot. ${err.message || err}`);
+            } finally {
+                calendar.unselect();
             }
         },
 

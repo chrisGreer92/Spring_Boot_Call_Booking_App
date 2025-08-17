@@ -30,21 +30,12 @@ public class BookingController {
     public static final String DEFAULT_SORT = "id";
 
     @PostMapping
-    public ResponseEntity<BookingDto> createBooking(
-            @RequestBody @Valid CreateAvailableSlotDto request,
-            UriComponentsBuilder uriBuilder
+    public ResponseEntity<Void> createBooking(
+            @RequestBody @Valid CreateAvailableSlotDto request
     ){
-
         var booking = bookingMapper.availableDtoToEntity(request);
-
         bookingRepository.save(booking);
-
-        var dto = bookingMapper.toDto(booking);
-        var uri = uriBuilder.path("/booking/{id}")
-                .buildAndExpand(dto.getId())
-                .toUri();
-
-        return ResponseEntity.created(uri).body(dto);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/request")
