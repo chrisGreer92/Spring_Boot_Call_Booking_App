@@ -19,7 +19,8 @@ bookingForm.addEventListener('submit', async (e) => {
     const formData = Object.fromEntries(new FormData(bookingForm).entries());
 
     try {
-        await sendJSON(`/booking/${formData.slotId}/request`, 'PATCH', {
+        await sendJSON(`/booking/request/${formData.slotId}`,
+            'PATCH', {
             name: formData.name,
             email: formData.email,
             phone: formData.phone,

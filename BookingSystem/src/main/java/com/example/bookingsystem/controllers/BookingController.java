@@ -29,48 +29,8 @@ public class BookingController {
             = Set.of("id", "status", "startTime");
     public static final String DEFAULT_SORT = "id";
 
-    @PostMapping
-    public ResponseEntity<Void> createBooking(
-            @RequestBody @Valid CreateAvailableSlotDto request
-    ){
-        var booking = bookingMapper.availableDtoToEntity(request);
-        bookingRepository.save(booking);
-        return ResponseEntity.noContent().build();
-    }
 
-    @PatchMapping("/{id}/request")
-    public ResponseEntity<Void> requestBooking(
-            @PathVariable Long id,
-            @RequestBody @Valid RequestBookingDto request
-    ) {
-        var booking = bookingRepository.findById(id).orElse(null);
-        if (booking == null) return ResponseEntity.notFound().build();
-        if (booking.getStatus() != AVAILABLE) return ResponseEntity.status(HttpStatus.CONFLICT).build();
-
-        bookingMapper.applyRequestToBooking(request, booking);
-        booking.setStatus(PENDING);
-        bookingRepository.save(booking);
-
-        return ResponseEntity.noContent().build();
-    }
-
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> updateBookingStatus(
-            @PathVariable Long id,
-            @RequestBody @Valid UpdateBookingStatusDto request
-    ){
-        var booking = bookingRepository.findById(id).orElse(null);
-        if(booking == null) return ResponseEntity.notFound().build();
-
-        booking.setStatus(request.getStatus());
-        bookingRepository.save(booking);
-
-        return ResponseEntity.noContent().build();
-
-    }
-
-    @GetMapping
+    @GetMapping("/public")
     public Iterable<BookingDto> getAvailableBookings(){
         return bookingRepository
                 .findFutureFilterStatus(false, AVAILABLE.name())
@@ -92,8 +52,7 @@ public class BookingController {
             boolean showPast
 
     ){
-        if(!SORT_FIELDS.contains(sort))
-            sort = DEFAULT_SORT;
+        if(!SORT_FIELDS.contains(sort)) sort = DEFAULT_SORT;
 
         List<Booking> bookings;
         if (showPast) {
@@ -111,9 +70,51 @@ public class BookingController {
         return bookings.stream().map(bookingMapper::toDto).toList();
     }
 
+    @PostMapping("/admin")
+    public ResponseEntity<Void> createBooking(
+            @RequestBody @Valid CreateAvailableSlotDto request
+    ){
+        var booking = bookingMapper.availableDtoToEntity(request);
+        bookingRepository.save(booking);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/request/{id}")
+    public ResponseEntity<Void> requestBooking(
+            @PathVariable Long id,
+            @RequestBody @Valid RequestBookingDto request
+    ) {
+        var booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null) return ResponseEntity.notFound().build();
+        if (booking.getStatus() != AVAILABLE) return ResponseEntity.status(HttpStatus.CONFLICT).build();
+
+        bookingMapper.applyRequestToBooking(request, booking);
+        booking.setStatus(PENDING);
+        bookingRepository.save(booking);
+
+        return ResponseEntity.noContent().build();
+    }
 
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/admin/{id}")
+    public ResponseEntity<Void> updateBookingStatus(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateBookingStatusDto request
+    ){
+        var booking = bookingRepository.findById(id).orElse(null);
+        if(booking == null) return ResponseEntity.notFound().build();
+
+        booking.setStatus(request.getStatus());
+        bookingRepository.save(booking);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+
+
+
+    @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void> deleteBooking(
             @PathVariable(name = "id") Long id
     ){

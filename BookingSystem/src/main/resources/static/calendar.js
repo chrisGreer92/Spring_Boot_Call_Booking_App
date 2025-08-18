@@ -6,12 +6,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const getURL = adminMode
         ? '/booking/admin?showPast=true&deleted=false&sort=startTime' //Admin gets specific (may tweak)
-        : '/booking'; //Public gets the hardcoded return
+        : '/booking/public'; //Public gets the hardcoded return
 
     const statusColors = {
         available: '#007bff',
         pending: '#800080',
-        accepted: '#3CB043',
+        confirmed: '#3CB043',
         rejected: '#ff0000',
         cancelled: '#000000'
     };
@@ -26,9 +26,9 @@ document.addEventListener('DOMContentLoaded', function () {
         hiddenDays: [0, 6], // Hides Sat & Sun
         buttonText: { today: 'This Week' },
 
-        //Can click and drag to create events
-        selectable: true,
-        selectMirror: true,
+        //Can click and drag to create events (if in as admin)
+        selectable: adminMode,
+        selectMirror: adminMode,
 
         events: async (fetchInfo, successCallback, failureCallback) => {
             try {
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
-                await sendJSON('/booking', 'POST', {
+                await sendJSON('/booking/admin', 'POST', {
                     startTime: info.startStr,
                     endTime: info.endStr
                 });

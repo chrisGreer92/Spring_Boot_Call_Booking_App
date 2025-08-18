@@ -40,12 +40,11 @@ public class SecurityConfig {
 //                     .anyRequest().permitAll()
 
                     // Production: Only Patch request and Defined GET for api is permitted
-                    .requestMatchers(HttpMethod.PATCH, "/booking/*/request").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/booking").permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/booking/request/*").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/booking/public").permitAll()
 
                     // Plus any static resources
-                    .requestMatchers("/", "/calendar.js", "/style.css", "/index.html", "/bookcall.html").permitAll()
-//                    .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                    .requestMatchers("/*.html", "/*.js", "/*.css", "/*.ico").permitAll()
                     .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults());
 

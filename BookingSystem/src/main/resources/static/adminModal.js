@@ -24,7 +24,7 @@ adminSaveBtn.addEventListener('click', async () => {
     const status = adminStatus.value;
 
     try {
-        await sendJSON(`/booking/${slotId}`, 'PATCH', { status });
+        await sendJSON(`/booking/admin/${slotId}`, 'PATCH', { status });
         alert('Status updated!');
         adminBookingModal.style.display = 'none';
         calendar.refetchEvents();
@@ -39,7 +39,7 @@ adminDeleteBtn.addEventListener('click', async () => {
     if (!confirm("Are you sure you want to delete this booking?")) return;
 
     try {
-        await sendJSON(`/booking/${slotId}`, 'DELETE');
+        await sendJSON(`/booking/admin/${slotId}`, 'DELETE');
         alert('Booking deleted!');
         adminBookingModal.style.display = 'none';
         calendar.refetchEvents();
