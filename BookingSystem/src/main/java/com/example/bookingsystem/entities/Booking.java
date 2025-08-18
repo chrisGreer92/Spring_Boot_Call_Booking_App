@@ -1,13 +1,13 @@
 package com.example.bookingsystem.entities;
 
 import com.example.bookingsystem.model.BookingStatus;
-
-import static com.example.bookingsystem.model.BookingStatus.AVAILABLE;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
+
+import static com.example.bookingsystem.model.BookingStatus.AVAILABLE;
 
 
 @Entity

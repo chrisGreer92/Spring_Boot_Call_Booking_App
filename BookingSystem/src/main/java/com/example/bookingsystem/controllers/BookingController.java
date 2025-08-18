@@ -1,22 +1,26 @@
 package com.example.bookingsystem.controllers;
 
-import com.example.bookingsystem.dtos.*;
+import com.example.bookingsystem.dtos.BookingDto;
+import com.example.bookingsystem.dtos.CreateAvailableSlotDto;
+import com.example.bookingsystem.dtos.RequestBookingDto;
+import com.example.bookingsystem.dtos.UpdateBookingStatusDto;
 import com.example.bookingsystem.entities.Booking;
 import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.model.BookingStatus;
 import com.example.bookingsystem.repositories.BookingRepository;
+import com.example.bookingsystem.services.EmailService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.example.bookingsystem.model.BookingStatus.*;
+import static com.example.bookingsystem.model.BookingStatus.AVAILABLE;
+import static com.example.bookingsystem.model.BookingStatus.PENDING;
 
 @RestController
 @RequestMapping("/booking")
@@ -25,6 +29,7 @@ public class BookingController {
 
     private final BookingMapper bookingMapper;
     private final BookingRepository bookingRepository;
+    private final EmailService emailService;
     private static final Set<String> SORT_FIELDS
             = Set.of("id", "status", "startTime");
     public static final String DEFAULT_SORT = "id";
@@ -92,6 +97,8 @@ public class BookingController {
         booking.setStatus(PENDING);
         bookingRepository.save(booking);
 
+        emailService.notifyBookingRequested(booking);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -106,6 +113,8 @@ public class BookingController {
 
         booking.setStatus(request.getStatus());
         bookingRepository.save(booking);
+
+        emailService.sendBookingUpdated(booking);
 
         return ResponseEntity.noContent().build();
 
