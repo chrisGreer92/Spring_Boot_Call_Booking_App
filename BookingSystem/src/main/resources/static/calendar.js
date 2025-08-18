@@ -93,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     startTime: info.startStr,
                     endTime: info.endStr
                 });
-                alert('Slot created!');
                 calendar.refetchEvents();
             } catch (err) {
                 alert(`Failed to create slot. ${err.message || err}`);
