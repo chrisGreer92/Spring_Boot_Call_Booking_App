@@ -36,15 +36,13 @@ public class SecurityConfig {
                     c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(c -> c
-                    // For (manual) api testing
-//                     .anyRequest().permitAll()
 
-                    // Production: Only Patch request and Defined GET for api is permitted
+                    // Only Patch request and Defined GET for api is permitted
                     .requestMatchers(HttpMethod.PATCH, "/booking/request/*").permitAll()
                     .requestMatchers(HttpMethod.GET, "/booking/public").permitAll()
-
                     // Plus any static resources
                     .requestMatchers("/*.html", "/*.js", "/*.css", "/*.ico").permitAll()
+                    // Everything else requires auth
                     .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults());
 
