@@ -35,6 +35,7 @@ public class BookingController {
     public static final String DEFAULT_SORT = "id";
 
 
+    /// Maybe refactor to only return admin filter?
     @GetMapping("/public")
     public Iterable<BookingDto> getAvailableBookings(){
         return bookingRepository

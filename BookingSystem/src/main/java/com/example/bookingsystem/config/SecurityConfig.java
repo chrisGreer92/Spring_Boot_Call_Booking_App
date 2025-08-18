@@ -35,7 +35,6 @@ public class SecurityConfig {
                     c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(c -> c
-
                     // Only Patch request and Defined GET for api is permitted
                     .requestMatchers(HttpMethod.PATCH, "/booking/request/*").permitAll()
                     .requestMatchers(HttpMethod.GET, "/booking/public").permitAll()
