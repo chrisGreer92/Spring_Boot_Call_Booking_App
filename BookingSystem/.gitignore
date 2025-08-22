@@ -6,6 +6,7 @@ target/
 
 ### Spring ###
 src/main/resources/application.properties
+src/main/resources/application.yaml
 pom.xml
 
 ### STS ###
