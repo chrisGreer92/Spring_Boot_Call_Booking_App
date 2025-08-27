@@ -5,8 +5,7 @@ target/
 !**/src/test/**/target/
 
 ### Spring ###
-src/main/resources/application.properties
-src/main/resources/application.yaml
+src/test/resources/application-test.properties
 pom.xml
 
 ### STS ###

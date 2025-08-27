@@ -1,0 +1,31 @@
+spring:
+  # Database
+  datasource:
+    url: ${DB_PATH}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  # JPA/Hibernate
+  #Only using flyway (database-first)
+  jpa:
+    hibernate.ddl-auto: none
+    show-sql: true
+    properties.hibernate.format_sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  #Email settings
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+  #For saving dates
+  jackson.serialization.write-dates-as-timestamps: false
+
+#API auth
+admin:
+  username: ${API_USERNAME}
+  password: ${API_PASSWORD}

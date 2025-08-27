@@ -297,7 +297,7 @@ public class BookingControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
-        
+
         Mockito.verify(emailService).notifyBookingRequested(booking);
     }
 

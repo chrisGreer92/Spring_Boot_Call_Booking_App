@@ -1,0 +1,8 @@
+target/
+#Except jar file
+!target/*.jar
+
+.git/
+*.iml
+../.idea/
+.DS_Store
