@@ -258,6 +258,51 @@ public class BookingControllerTest {
         Mockito.verify(bookingRepository, Mockito.never()).delete(Mockito.any());
     }
 
+
+    /// --- Email Service Tests ---
+
+    @Test
+    void updateBookingStatus_shouldSendUpdateEmail() throws Exception {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(PENDING);
+
+        Mockito.when(bookingRepository.findById(1L))
+                .thenReturn(Optional.of(booking));
+
+        UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
+        statusDto.setStatus(CONFIRMED);
+
+        mockMvc.perform(patch("/booking/admin/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDto)))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(emailService).sendBookingUpdated(booking);
+    }
+
+    @Test
+    void requestBooking_shouldSendRequestedEmail() throws Exception {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(AVAILABLE);
+
+        Mockito.when(bookingRepository.findById(1L))
+                .thenReturn(Optional.of(booking));
+
+        RequestBookingDto request = createValidBookingRequest();
+
+        mockMvc.perform(patch("/booking/request/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+        
+        Mockito.verify(emailService).notifyBookingRequested(booking);
+    }
+
+
+
     private CreateAvailableSlotDto createValidBookingSlot() {
         CreateAvailableSlotDto request = new CreateAvailableSlotDto();
         request.setStartTime(OffsetDateTime.now().plusDays(1));
