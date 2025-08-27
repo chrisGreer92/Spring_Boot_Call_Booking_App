@@ -4,6 +4,7 @@ import com.example.bookingsystem.dtos.BookingDto;
 import com.example.bookingsystem.entities.Booking;
 import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.repositories.BookingRepository;
+import com.example.bookingsystem.services.EmailService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class SecurityTest {
 
     @MockitoBean
     private BookingMapper bookingMapper;
+
+    @MockitoBean
+    private EmailService emailService;
 
     @Value("${admin.username}")
     private String adminUsername;
@@ -71,7 +75,7 @@ public class SecurityTest {
     @Test
     void getAllBookings_requiresNoAuth() throws Exception {
         // No auth leads to 200
-        mockMvc.perform(get("/booking"))
+        mockMvc.perform(get("/booking/public"))
                 .andExpect(status().isOk());
     }
 
@@ -91,22 +95,22 @@ public class SecurityTest {
                 .thenReturn(bookingEntity);
 
         // Without auth
-        mockMvc.perform(post("/booking")
+        mockMvc.perform(post("/booking/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BOOKING_JSON))
                 .andExpect(status().isUnauthorized());
 
         // With auth
-        mockMvc.perform(post("/booking")
+        mockMvc.perform(post("/booking/admin")
                         .with(httpBasic(adminUsername, adminPassword))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(VALID_BOOKING_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isNoContent());
     }
 
     @Test
     void requestBooking_isPublic() throws Exception {
-        mockMvc.perform(patch("/booking/{id}/request", 1L)
+        mockMvc.perform(patch("/booking/request/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(REQUEST_BOOKING_JSON))
                 .andExpect(status().isNotFound()); //Not found means still auth (didn't create and add)
@@ -122,13 +126,13 @@ public class SecurityTest {
                 .thenReturn(Optional.of(booking));
 
         // Without auth
-        mockMvc.perform(patch("/booking/1")
+        mockMvc.perform(patch("/booking/admin/1")
                         .contentType("application/json")
                         .content(UPDATE_STATUS_JSON))
                 .andExpect(status().isUnauthorized());
 
         // With auth
-        mockMvc.perform(patch("/booking/1")
+        mockMvc.perform(patch("/booking/admin/1")
                         .with(httpBasic(adminUsername, adminPassword))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(UPDATE_STATUS_JSON))
@@ -144,11 +148,11 @@ public class SecurityTest {
                 .thenReturn(Optional.of(booking));
 
         // No Auth leads to 401
-        mockMvc.perform(delete("/booking/1"))
+        mockMvc.perform(delete("/booking/admin/1"))
                 .andExpect(status().isUnauthorized());
 
         // Basic Auth leads to 204
-        mockMvc.perform(delete("/booking/1")
+        mockMvc.perform(delete("/booking/admin/1")
                         .with(httpBasic(adminUsername, adminPassword)))
                 .andExpect(status().isNoContent());
 

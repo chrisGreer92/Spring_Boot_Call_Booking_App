@@ -8,6 +8,7 @@ import com.example.bookingsystem.dtos.UpdateBookingStatusDto;
 import com.example.bookingsystem.entities.Booking;
 import com.example.bookingsystem.mappers.BookingMapper;
 import com.example.bookingsystem.repositories.BookingRepository;
+import com.example.bookingsystem.services.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -47,6 +48,9 @@ public class BookingControllerTest {
     @MockitoBean
     private BookingMapper bookingMapper;
 
+    @MockitoBean
+    private EmailService emailService;
+
     @Test
     void createBooking_shouldReturnCreated() throws Exception {
         CreateAvailableSlotDto request = createValidBookingSlot();
@@ -60,11 +64,10 @@ public class BookingControllerTest {
         Mockito.when(bookingMapper.availableDtoToEntity(any())).thenReturn(entity);
         Mockito.when(bookingMapper.toDto(any())).thenReturn(responseDto);
 
-        mockMvc.perform(post("/booking")
+        mockMvc.perform(post("/booking/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1));
+                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -72,7 +75,7 @@ public class BookingControllerTest {
         RequestBookingDto request = new RequestBookingDto();
         request.setEmail("chris@example.com");
 
-        mockMvc.perform(post("/booking")
+        mockMvc.perform(post("/booking/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -85,7 +88,7 @@ public class BookingControllerTest {
         request.setStartTime(OffsetDateTime.now().plusDays(2));
         request.setEndTime(OffsetDateTime.now().plusDays(1));
 
-        mockMvc.perform(patch("/booking/1")
+        mockMvc.perform(post("/booking/admin")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -111,7 +114,7 @@ public class BookingControllerTest {
         Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
         RequestBookingDto request = createValidBookingRequest();
-        mockMvc.perform(patch("/booking/{id}/request", booking.getId())
+        mockMvc.perform(patch("/booking/request/{id}", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
@@ -127,7 +130,7 @@ public class BookingControllerTest {
         Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
         RequestBookingDto request = createValidBookingRequest();
-        mockMvc.perform(patch("/booking/{id}/request", booking.getId())
+        mockMvc.perform(patch("/booking/request/{id}", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
@@ -151,7 +154,7 @@ public class BookingControllerTest {
 
         Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        mockMvc.perform(patch("/booking/1/request")
+        mockMvc.perform(patch("/booking/request/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -169,7 +172,7 @@ public class BookingControllerTest {
 
         Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        mockMvc.perform(patch("/booking/1")
+        mockMvc.perform(patch("/booking/admin/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(statusDto)))
                 .andExpect(status().isNoContent());
@@ -192,7 +195,7 @@ public class BookingControllerTest {
     void updateBookingStatus_shouldReturnBadRequest_whenStatusMissing() throws Exception {
         String json = "{}";
 
-        mockMvc.perform(patch("/booking/1")
+        mockMvc.perform(patch("/booking/admin/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());
@@ -211,7 +214,7 @@ public class BookingControllerTest {
 
         Mockito.when(bookingMapper.toDto(booking)).thenReturn(dto);
 
-        mockMvc.perform(get("/booking"))
+        mockMvc.perform(get("/booking/public"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }
@@ -238,7 +241,7 @@ public class BookingControllerTest {
 
         Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
 
-        mockMvc.perform(delete("/booking/1"))
+        mockMvc.perform(delete("/booking/admin/1"))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(bookingRepository, Mockito.times(1)).delete(booking);
