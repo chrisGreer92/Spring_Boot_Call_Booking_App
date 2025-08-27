@@ -7,7 +7,6 @@ services:
     environment:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-#      DB_PATH: "jdbc:postgresql://db:5432/booking_db"
       DB_PATH: ${DB_PATH}
       API_USERNAME: ${API_USERNAME}
       API_PASSWORD: ${API_PASSWORD}
