@@ -9,7 +9,8 @@ src/test/resources/application-test.properties
 pom.xml
 
 ### Docker Compose ###
-docker-compose.yml
+#docker-compose.yml
+.env
 
 ### STS ###
 .apt_generated
