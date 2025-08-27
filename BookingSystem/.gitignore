@@ -8,6 +8,9 @@ target/
 src/test/resources/application-test.properties
 pom.xml
 
+### Docker Compose ###
+docker-compose.yml
+
 ### STS ###
 .apt_generated
 .classpath
