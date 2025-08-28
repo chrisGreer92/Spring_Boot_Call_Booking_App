@@ -29,6 +29,7 @@ public class EmailService {
 
     /// For when I've changed a booking, notify the requester
     public void sendBookingUpdated(Booking booking){
+        if(booking.getEmail() == null) return;
         String subject = "Booking Updated: " + booking.getStatus();
         String body = buildBookingDetailsBody(booking);
         sendEmail(booking.getEmail(), subject, body);
