@@ -1,4 +1,4 @@
-# springbootApp
+# Call Booking System
 
 Self-hosted call booking system built with Java + Spring Boot and PostgreSQL, containerised with Docker and deployed on fly.io.
 
