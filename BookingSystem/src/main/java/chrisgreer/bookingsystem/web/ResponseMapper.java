@@ -1,4 +1,4 @@
-package chrisgreer.bookingsystem.utils;
+package chrisgreer.bookingsystem.web;
 
 import chrisgreer.bookingsystem.model.ServiceResult;
 import org.springframework.http.HttpStatus;

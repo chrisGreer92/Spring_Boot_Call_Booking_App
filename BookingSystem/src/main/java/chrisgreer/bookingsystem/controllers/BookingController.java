@@ -6,18 +6,14 @@ import chrisgreer.bookingsystem.dtos.RequestBookingDto;
 import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.mappers.BookingMapper;
 import chrisgreer.bookingsystem.model.BookingStatus;
-import chrisgreer.bookingsystem.model.ServiceResult;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
 import chrisgreer.bookingsystem.services.BookingService;
 import chrisgreer.bookingsystem.services.EmailService;
-import chrisgreer.bookingsystem.utils.ResponseMapper;
+import chrisgreer.bookingsystem.web.ResponseMapper;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static chrisgreer.bookingsystem.model.ServiceResult.*;
 
 @RestController
 @RequestMapping("/booking")
