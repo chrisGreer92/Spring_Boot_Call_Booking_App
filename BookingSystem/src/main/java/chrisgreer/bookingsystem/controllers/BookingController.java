@@ -67,8 +67,9 @@ public class BookingController {
             @RequestBody @Valid RequestBookingDto request
     ) {
 
-        return ResponseMapper
-                .toResponse(bookingService.requestBooking(id, request));
+        return ResponseMapper.toResponse(
+                bookingService.requestBooking(id, request)
+        );
     }
 
 
@@ -77,9 +78,10 @@ public class BookingController {
             @PathVariable Long id,
             @RequestBody @Valid UpdateBookingStatusDto request
     ){
-        return bookingService.updateBookingStatus(id, request)
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.notFound().build();
+
+        return ResponseMapper.toResponse(
+                bookingService.updateBookingStatus(id, request)
+        );
     }
 
 
@@ -89,8 +91,8 @@ public class BookingController {
     public ResponseEntity<Void> deleteBooking(
             @PathVariable(name = "id") Long id
     ){
-        return bookingService.deleteBooking(id)
-                ? ResponseEntity.notFound().build()
-                : ResponseEntity.noContent().build();
+        return ResponseMapper.toResponse(
+                bookingService.deleteBooking(id)
+        );
     }
 }

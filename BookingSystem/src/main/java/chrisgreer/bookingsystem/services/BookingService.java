@@ -84,25 +84,25 @@ public class BookingService {
     }
 
     @Transactional
-    public boolean updateBookingStatus(Long id, UpdateBookingStatusDto dto){
+    public ServiceResult updateBookingStatus(Long id, UpdateBookingStatusDto dto){
         var booking = bookingRepository.findById(id).orElse(null);
-        if(booking == null) return false;
+        if(booking == null) return ServiceResult.NOT_FOUND;
 
         booking.setStatus(dto.getStatus());
         bookingRepository.save(booking);
 
         emailService.sendBookingUpdated(booking);
 
-        return true;
+        return ServiceResult.SUCCESS;
     }
 
     @Transactional
-    public boolean deleteBooking(Long id){
+    public ServiceResult deleteBooking(Long id){
         var booking = bookingRepository.findById(id).orElse(null);
-        if(booking == null) return false;
+        if(booking == null) return ServiceResult.NOT_FOUND;
 
         bookingRepository.delete(booking);
-        return true;
+        return ServiceResult.SUCCESS;
     }
 
 }
