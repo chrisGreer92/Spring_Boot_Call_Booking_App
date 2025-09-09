@@ -2,18 +2,24 @@ package chrisgreer.bookingsystem.services;
 
 import chrisgreer.bookingsystem.dtos.BookingDto;
 import chrisgreer.bookingsystem.dtos.CreateAvailableSlotDto;
+import chrisgreer.bookingsystem.dtos.RequestBookingDto;
+import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.entities.Booking;
 import chrisgreer.bookingsystem.mappers.BookingMapper;
 import chrisgreer.bookingsystem.model.BookingStatus;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 
 import static chrisgreer.bookingsystem.model.BookingStatus.AVAILABLE;
+import static chrisgreer.bookingsystem.model.BookingStatus.PENDING;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,7 @@ public class BookingService {
 
     BookingRepository bookingRepository;
     BookingMapper bookingMapper;
+    EmailService emailService;
 
     private static final Set<String> SORT_FIELDS
             = Set.of("id", "status", "startTime");
@@ -55,9 +62,38 @@ public class BookingService {
         return bookings.stream().map(bookingMapper::toDto).toList();
     }
 
+    @Transactional
     public void createBooking(CreateAvailableSlotDto dto){
         var booking = bookingMapper.availableDtoToEntity(dto);
         bookingRepository.save(booking);
+    }
+
+    @Transactional
+    public boolean requestBooking(Long id, RequestBookingDto dto){
+        /// ???
+        return true;
+    }
+
+    @Transactional
+    public boolean updateBookingStatus(Long id, UpdateBookingStatusDto dto){
+        var booking = bookingRepository.findById(id).orElse(null);
+        if(booking == null) return false;
+
+        booking.setStatus(dto.getStatus());
+        bookingRepository.save(booking);
+
+        emailService.sendBookingUpdated(booking);
+
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteBooking(Long id){
+        var booking = bookingRepository.findById(id).orElse(null);
+        if(booking == null) return false;
+
+        bookingRepository.delete(booking);
+        return true;
     }
 
 }

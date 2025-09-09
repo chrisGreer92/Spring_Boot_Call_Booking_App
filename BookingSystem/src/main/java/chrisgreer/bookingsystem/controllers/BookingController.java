@@ -84,16 +84,9 @@ public class BookingController {
             @PathVariable Long id,
             @RequestBody @Valid UpdateBookingStatusDto request
     ){
-        var booking = bookingRepository.findById(id).orElse(null);
-        if(booking == null) return ResponseEntity.notFound().build();
-
-        booking.setStatus(request.getStatus());
-        bookingRepository.save(booking);
-
-        emailService.sendBookingUpdated(booking);
-
-        return ResponseEntity.noContent().build();
-
+        return bookingService.updateBookingStatus(id, request)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
 
@@ -103,12 +96,8 @@ public class BookingController {
     public ResponseEntity<Void> deleteBooking(
             @PathVariable(name = "id") Long id
     ){
-        var booking = bookingRepository.findById(id).orElse(null);
-
-        if(booking == null) return ResponseEntity.notFound().build();
-
-        bookingRepository.delete(booking);
-
-        return ResponseEntity.noContent().build();
+        return bookingService.deleteBooking(id)
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.noContent().build();
     }
 }
