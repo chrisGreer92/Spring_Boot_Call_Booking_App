@@ -68,7 +68,6 @@ public class BookingController {
         );
     }
 
-
     @PatchMapping("/admin/{id}")
     public ResponseEntity<Void> updateBookingStatus(
             @PathVariable Long id,
@@ -79,9 +78,6 @@ public class BookingController {
                 bookingService.updateBookingStatus(id, request)
         );
     }
-
-
-
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void> deleteBooking(

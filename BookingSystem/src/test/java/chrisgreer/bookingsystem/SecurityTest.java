@@ -4,7 +4,9 @@ import chrisgreer.bookingsystem.dtos.BookingDto;
 import chrisgreer.bookingsystem.entities.Booking;
 import chrisgreer.bookingsystem.mappers.BookingMapper;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
+import chrisgreer.bookingsystem.services.BookingService;
 import chrisgreer.bookingsystem.services.EmailService;
+import chrisgreer.bookingsystem.web.ResponseMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class SecurityTest {
 
     @MockitoBean
     private EmailService emailService;
+
+    @MockitoBean
+    private BookingService bookingService;
 
     @Value("${admin.username}")
     private String adminUsername;

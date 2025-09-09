@@ -8,13 +8,16 @@ import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.entities.Booking;
 import chrisgreer.bookingsystem.mappers.BookingMapper;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
+import chrisgreer.bookingsystem.services.BookingService;
 import chrisgreer.bookingsystem.services.EmailService;
+import chrisgreer.bookingsystem.web.ResponseMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -50,6 +53,12 @@ public class BookingControllerTest {
 
     @MockitoBean
     private EmailService emailService;
+
+    @MockitoBean
+    private BookingService bookingService;
+
+    @MockitoBean
+    private ResponseMapper responseMapper;
 
     @Test
     void createBooking_shouldReturnCreated() throws Exception {
