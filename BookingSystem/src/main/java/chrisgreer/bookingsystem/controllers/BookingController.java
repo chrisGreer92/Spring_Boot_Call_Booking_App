@@ -6,17 +6,18 @@ import chrisgreer.bookingsystem.dtos.RequestBookingDto;
 import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.mappers.BookingMapper;
 import chrisgreer.bookingsystem.model.BookingStatus;
+import chrisgreer.bookingsystem.model.ServiceResult;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
 import chrisgreer.bookingsystem.services.BookingService;
 import chrisgreer.bookingsystem.services.EmailService;
+import chrisgreer.bookingsystem.utils.ResponseMapper;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static chrisgreer.bookingsystem.model.BookingStatus.AVAILABLE;
-import static chrisgreer.bookingsystem.model.BookingStatus.PENDING;
+import static chrisgreer.bookingsystem.model.ServiceResult.*;
 
 @RestController
 @RequestMapping("/booking")
@@ -65,17 +66,9 @@ public class BookingController {
             @PathVariable Long id,
             @RequestBody @Valid RequestBookingDto request
     ) {
-        var booking = bookingRepository.findById(id).orElse(null);
-        if (booking == null) return ResponseEntity.notFound().build();
-        if (booking.getStatus() != AVAILABLE) return ResponseEntity.status(HttpStatus.CONFLICT).build();
 
-        bookingMapper.applyRequestToBooking(request, booking);
-        booking.setStatus(PENDING);
-        bookingRepository.save(booking);
-
-        emailService.notifyBookingRequested(booking);
-
-        return ResponseEntity.noContent().build();
+        return ResponseMapper
+                .toResponse(bookingService.requestBooking(id, request));
     }
 
 

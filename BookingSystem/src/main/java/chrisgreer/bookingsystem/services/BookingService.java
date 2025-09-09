@@ -7,6 +7,7 @@ import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.entities.Booking;
 import chrisgreer.bookingsystem.mappers.BookingMapper;
 import chrisgreer.bookingsystem.model.BookingStatus;
+import chrisgreer.bookingsystem.model.ServiceResult;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -18,8 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static chrisgreer.bookingsystem.model.BookingStatus.AVAILABLE;
-import static chrisgreer.bookingsystem.model.BookingStatus.PENDING;
+import static chrisgreer.bookingsystem.model.BookingStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -69,9 +69,18 @@ public class BookingService {
     }
 
     @Transactional
-    public boolean requestBooking(Long id, RequestBookingDto dto){
-        /// ???
-        return true;
+    public ServiceResult requestBooking(Long id, RequestBookingDto dto){
+        var booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null) return ServiceResult.NOT_FOUND;
+        if (booking.getStatus() != AVAILABLE) return ServiceResult.CONFLICT;
+
+        bookingMapper.applyRequestToBooking(dto, booking);
+        booking.setStatus(PENDING);
+        bookingRepository.save(booking);
+
+        emailService.notifyBookingRequested(booking);
+
+        return ServiceResult.SUCCESS;
     }
 
     @Transactional
