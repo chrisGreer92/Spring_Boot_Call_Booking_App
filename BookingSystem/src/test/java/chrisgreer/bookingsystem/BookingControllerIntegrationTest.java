@@ -8,6 +8,7 @@ import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.entities.Booking;
 import chrisgreer.bookingsystem.model.BookingStatus;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
+import chrisgreer.bookingsystem.services.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,9 @@ public class BookingControllerIntegrationTest {
 
     @Autowired
     private BookingRepository bookingRepository;
+
+    @MockitoBean
+    private EmailService emailService;
 
     @Test
     void createBooking_shouldReturnCreated() throws Exception {
