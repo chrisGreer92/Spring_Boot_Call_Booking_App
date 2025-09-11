@@ -227,6 +227,36 @@ public class BookingControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void updateBookingStatus_shouldSendUpdateEmail() throws Exception {
+        Booking booking = createValidAvailableBooking();
+        bookingRepository.save(booking);
+
+        UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
+        statusDto.setStatus(CONFIRMED);
+
+        mockMvc.perform(patch("/booking/admin/{id}",booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDto)))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(emailService).sendBookingUpdated(booking);
+    }
+
+    @Test
+    void requestBooking_shouldSendRequestedEmail() throws Exception {
+        Booking booking = createValidAvailableBooking();
+        bookingRepository.save(booking);
+
+        RequestBookingDto request = createValidBookingRequest();
+        mockMvc.perform(patch("/booking/request/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(emailService).notifyBookingRequested(booking);
+    }
+
 
     private Booking createValidAvailableBooking(){
         Booking booking = new Booking();
