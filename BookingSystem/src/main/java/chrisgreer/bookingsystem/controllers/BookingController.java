@@ -20,11 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class BookingController {
 
-    private final BookingMapper bookingMapper;
-    private final BookingRepository bookingRepository;
-    private final EmailService emailService;
     private final BookingService bookingService;
-
 
     @GetMapping("/public")
     public Iterable<BookingDto> getAvailableBookings(){

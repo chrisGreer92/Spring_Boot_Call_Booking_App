@@ -25,9 +25,9 @@ import static chrisgreer.bookingsystem.model.BookingStatus.*;
 @RequiredArgsConstructor
 public class BookingService {
 
-    BookingRepository bookingRepository;
-    BookingMapper bookingMapper;
-    EmailService emailService;
+    private final BookingRepository bookingRepository;
+    private final EmailService emailService;
+    private final BookingMapper bookingMapper;
 
     private static final Set<String> SORT_FIELDS
             = Set.of("id", "status", "startTime");
