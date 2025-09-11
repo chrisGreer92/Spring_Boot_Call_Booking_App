@@ -1,12 +1,10 @@
 package chrisgreer.bookingsystem;
 
 
-import chrisgreer.bookingsystem.dtos.BookingDto;
 import chrisgreer.bookingsystem.dtos.CreateAvailableSlotDto;
 import chrisgreer.bookingsystem.dtos.RequestBookingDto;
 import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.entities.Booking;
-import chrisgreer.bookingsystem.model.BookingStatus;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
 import chrisgreer.bookingsystem.services.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +13,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,8 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
 
 import static chrisgreer.bookingsystem.model.BookingStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +50,7 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void createBooking_shouldReturnCreated() throws Exception {
-        CreateAvailableSlotDto request = createValidBookingSlot();
+        CreateAvailableSlotDto request = TestUtil.createValidBookingSlot();
 
         mockMvc.perform(post("/booking/admin")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -76,7 +71,7 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void createBooking_shouldReturnBadRequest_whenStartTimeAfterEndTime() throws Exception {
-        CreateAvailableSlotDto request = createValidBookingSlot();
+        CreateAvailableSlotDto request = TestUtil.createValidBookingSlot();
         request.setStartTime(OffsetDateTime.now().plusDays(2));
         request.setEndTime(OffsetDateTime.now().plusDays(1));
 
@@ -88,7 +83,7 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void requestBooking_returnsNotFound_whenBookingDoesNotExist() throws Exception {
-        RequestBookingDto request = createValidBookingRequest();
+        RequestBookingDto request = TestUtil.createValidBookingRequest();
 
         mockMvc.perform(patch("/booking/{id}/request", 999L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -98,11 +93,11 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void requestBooking_returnsConflict_whenBookingNotAvailable() throws Exception {
-        Booking booking = createValidAvailableBooking();
+        Booking booking = TestUtil.createValidBooking();
         booking.setStatus(PENDING); //Not AVAILABLE
         bookingRepository.save(booking);
 
-        RequestBookingDto request = createValidBookingRequest();
+        RequestBookingDto request = TestUtil.createValidBookingRequest();
         mockMvc.perform(patch("/booking/request/{id}", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -111,11 +106,9 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void requestBooking_returnsOk_andSetsPending_whenValid() throws Exception {
-        Booking booking = createValidAvailableBooking();
-        bookingRepository.save(booking);
+        Booking booking = TestUtil.persistAvailableBooking(bookingRepository);
 
-
-        RequestBookingDto request = createValidBookingRequest();
+        RequestBookingDto request = TestUtil.createValidBookingRequest();
         mockMvc.perform(patch("/booking/request/{id}", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -128,11 +121,10 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void requestBooking_shouldReturnBadRequest_whenInvalidPhone() throws Exception {
-        RequestBookingDto request = createValidBookingRequest();
+        RequestBookingDto request = TestUtil.createValidBookingRequest();
         request.setPhone("invalid-phone");
 
-        Booking booking = createValidAvailableBooking();
-        bookingRepository.save(booking);
+        Booking booking = TestUtil.persistAvailableBooking(bookingRepository);
 
         mockMvc.perform(patch("/booking/request/{id}", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,8 +135,7 @@ public class BookingControllerIntegrationTest {
     @Test
     void updateBookingStatus_shouldReturnNoContent_andSetsStatus() throws Exception {
 
-        Booking booking = createValidAvailableBooking();
-        bookingRepository.save(booking);
+        Booking booking = TestUtil.persistAvailableBooking(bookingRepository);
 
         UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
         statusDto.setStatus(CONFIRMED);
@@ -183,10 +174,10 @@ public class BookingControllerIntegrationTest {
     @Test
     void getAvailableBookings_shouldReturnList() throws Exception {
 
+        bookingRepository.deleteAll();
         int totalBookings = 3;
         for(int i = 0 ; i < totalBookings ; i++){
-            Booking booking = createValidAvailableBooking();
-            bookingRepository.save(booking);
+            TestUtil.persistAvailableBooking(bookingRepository);
         }
 
         mockMvc.perform(get("/booking/public"))
@@ -196,12 +187,10 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void getBookings_shouldFallbackToId_whenInvalidSortField() throws Exception {
-
-        Booking firstBooking = createValidAvailableBooking();
-        bookingRepository.save(firstBooking);
+        bookingRepository.deleteAll();
+        Booking firstBooking = TestUtil.persistAvailableBooking(bookingRepository);
         for(int i = 0 ; i < 2 ; i++){
-            Booking booking = createValidAvailableBooking();
-            bookingRepository.save(booking);
+            TestUtil.persistAvailableBooking(bookingRepository);
         }
 
         mockMvc.perform(get("/booking/admin?sort=invalid&showPast=true"))
@@ -212,8 +201,7 @@ public class BookingControllerIntegrationTest {
     @Test
     void deleteBooking_shouldReturnNoContent_whenBookingExists() throws Exception {
 
-        Booking booking = createValidAvailableBooking();
-        bookingRepository.save(booking);
+        Booking booking = TestUtil.persistAvailableBooking(bookingRepository);
 
         mockMvc.perform(delete("/booking/admin/{id}", booking.getId()))
                 .andExpect(status().isNoContent());
@@ -229,8 +217,7 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void updateBookingStatus_shouldSendUpdateEmail() throws Exception {
-        Booking booking = createValidAvailableBooking();
-        bookingRepository.save(booking);
+        Booking booking = TestUtil.persistAvailableBooking(bookingRepository);
 
         UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
         statusDto.setStatus(CONFIRMED);
@@ -245,42 +232,15 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void requestBooking_shouldSendRequestedEmail() throws Exception {
-        Booking booking = createValidAvailableBooking();
-        bookingRepository.save(booking);
+        Booking booking = TestUtil.persistAvailableBooking(bookingRepository);
 
-        RequestBookingDto request = createValidBookingRequest();
+        RequestBookingDto request = TestUtil.createValidBookingRequest();
         mockMvc.perform(patch("/booking/request/{id}", booking.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(emailService).notifyBookingRequested(booking);
-    }
-
-
-    private Booking createValidAvailableBooking(){
-        Booking booking = new Booking();
-        booking.setName("Bob");
-        booking.setEmail("bob@example.com");
-        booking.setStatus(BookingStatus.AVAILABLE);
-        booking.setStartTime(OffsetDateTime.now().plusDays(1));
-        booking.setEndTime(OffsetDateTime.now().plusDays(1).plusHours(1));
-        return booking;
-    }
-
-    private CreateAvailableSlotDto createValidBookingSlot() {
-        CreateAvailableSlotDto request = new CreateAvailableSlotDto();
-        request.setStartTime(OffsetDateTime.now().plusDays(1));
-        request.setEndTime(OffsetDateTime.now().plusDays(1).plusHours(1));
-        return request;
-    }
-
-    private RequestBookingDto createValidBookingRequest() {
-        RequestBookingDto request = new RequestBookingDto();
-        request.setName("Valid Name");
-        request.setPhone("01234567890");
-        request.setEmail("valid@email.com");
-        return request;
     }
 
 
