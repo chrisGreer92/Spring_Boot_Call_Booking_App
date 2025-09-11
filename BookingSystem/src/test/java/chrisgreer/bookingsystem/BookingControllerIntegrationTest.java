@@ -4,8 +4,8 @@ package chrisgreer.bookingsystem;
 import chrisgreer.bookingsystem.dtos.BookingDto;
 import chrisgreer.bookingsystem.dtos.CreateAvailableSlotDto;
 import chrisgreer.bookingsystem.dtos.RequestBookingDto;
+import chrisgreer.bookingsystem.dtos.UpdateBookingStatusDto;
 import chrisgreer.bookingsystem.entities.Booking;
-import chrisgreer.bookingsystem.mappers.BookingMapper;
 import chrisgreer.bookingsystem.model.BookingStatus;
 import chrisgreer.bookingsystem.repositories.BookingRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,19 +14,23 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
-import static chrisgreer.bookingsystem.model.BookingStatus.PENDING;
+import static chrisgreer.bookingsystem.model.BookingStatus.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -89,7 +93,7 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void requestBooking_returnsConflict_whenBookingNotAvailable() throws Exception {
-        Booking booking = createValidBooking();
+        Booking booking = createValidAvailableBooking();
         booking.setStatus(PENDING); //Not AVAILABLE
         bookingRepository.save(booking);
 
@@ -100,7 +104,126 @@ public class BookingControllerIntegrationTest {
                 .andExpect(status().isConflict());
     }
 
-    private Booking createValidBooking(){
+    @Test
+    void requestBooking_returnsOk_andSetsPending_whenValid() throws Exception {
+        Booking booking = createValidAvailableBooking();
+        bookingRepository.save(booking);
+
+
+        RequestBookingDto request = createValidBookingRequest();
+        mockMvc.perform(patch("/booking/request/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+
+
+        Booking updated = bookingRepository.findById(booking.getId()).orElseThrow();
+        assertEquals(PENDING, updated.getStatus());
+    }
+
+    @Test
+    void requestBooking_shouldReturnBadRequest_whenInvalidPhone() throws Exception {
+        RequestBookingDto request = createValidBookingRequest();
+        request.setPhone("invalid-phone");
+
+        Booking booking = createValidAvailableBooking();
+        bookingRepository.save(booking);
+
+        mockMvc.perform(patch("/booking/request/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateBookingStatus_shouldReturnNoContent_andSetsStatus() throws Exception {
+
+        Booking booking = createValidAvailableBooking();
+        bookingRepository.save(booking);
+
+        UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
+        statusDto.setStatus(CONFIRMED);
+
+        mockMvc.perform(patch("/booking/admin/{id}", booking.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDto)))
+                .andExpect(status().isNoContent());
+
+        Booking updated = bookingRepository.findById(booking.getId()).orElseThrow();
+        assertEquals(CONFIRMED, updated.getStatus());
+
+    }
+
+    @Test
+    void updateBookingStatus_shouldReturnNotFound() throws Exception {
+        UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
+        statusDto.setStatus(CONFIRMED);
+
+        mockMvc.perform(patch("/booking/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDto)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateBookingStatus_shouldReturnBadRequest_whenStatusMissing() throws Exception {
+        String json = "{}";
+
+        mockMvc.perform(patch("/booking/admin/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getAvailableBookings_shouldReturnList() throws Exception {
+
+        int totalBookings = 3;
+        for(int i = 0 ; i < totalBookings ; i++){
+            Booking booking = createValidAvailableBooking();
+            bookingRepository.save(booking);
+        }
+
+        mockMvc.perform(get("/booking/public"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(totalBookings));
+    }
+
+    @Test
+    void getBookings_shouldFallbackToId_whenInvalidSortField() throws Exception {
+
+        Booking firstBooking = createValidAvailableBooking();
+        bookingRepository.save(firstBooking);
+        for(int i = 0 ; i < 2 ; i++){
+            Booking booking = createValidAvailableBooking();
+            bookingRepository.save(booking);
+        }
+
+        mockMvc.perform(get("/booking/admin?sort=invalid&showPast=true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(firstBooking.getId()));
+    }
+
+    @Test
+    void deleteBooking_shouldReturnNoContent_whenBookingExists() throws Exception {
+
+        Booking booking = createValidAvailableBooking();
+        bookingRepository.save(booking);
+
+        mockMvc.perform(delete("/booking/admin/{id}", booking.getId()))
+                .andExpect(status().isNoContent());
+
+        assertNull(bookingRepository.findById(booking.getId()).orElse(null));
+    }
+
+    @Test
+    void deleteBooking_shouldReturnNotFound_whenBookingMissing() throws Exception {
+        mockMvc.perform(delete("/booking/1"))
+                .andExpect(status().isNotFound());
+    }
+
+
+    private Booking createValidAvailableBooking(){
         Booking booking = new Booking();
         booking.setName("Bob");
         booking.setEmail("bob@example.com");
