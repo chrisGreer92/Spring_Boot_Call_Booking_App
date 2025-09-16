@@ -11,12 +11,7 @@ import java.time.OffsetDateTime;
 public class TestUtil {
 
     public static Booking persistAvailableBooking(BookingRepository bookingRepository){
-        Booking booking = new Booking();
-        booking.setName("Bob");
-        booking.setEmail("bob@example.com");
-        booking.setStatus(BookingStatus.AVAILABLE);
-        booking.setStartTime(OffsetDateTime.now().plusDays(1));
-        booking.setEndTime(OffsetDateTime.now().plusDays(1).plusHours(1));
+        Booking booking = createValidBooking();
         bookingRepository.save(booking);
         return booking;
     }

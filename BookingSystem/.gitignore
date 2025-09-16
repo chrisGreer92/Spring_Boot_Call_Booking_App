@@ -6,7 +6,6 @@ target/
 
 ### Spring ###
 src/test/resources/application-test.properties
-pom.xml
 
 ### Docker Compose ###
 #docker-compose.yml

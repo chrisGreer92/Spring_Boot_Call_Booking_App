@@ -49,7 +49,7 @@ public class BookingControllerIntegrationTest {
     private EmailService emailService;
 
     @Test
-    void createBooking_shouldReturnCreated() throws Exception {
+    void createBooking_shouldReturnNoContent() throws Exception {
         CreateAvailableSlotDto request = TestUtil.createValidBookingSlot();
 
         mockMvc.perform(post("/booking/admin")
@@ -151,7 +151,7 @@ public class BookingControllerIntegrationTest {
     }
 
     @Test
-    void updateBookingStatus_shouldReturnNotFound() throws Exception {
+    void updateBookingStatus_shouldReturnNotFound_whenBookingDoesNotExist() throws Exception {
         UpdateBookingStatusDto statusDto = new UpdateBookingStatusDto();
         statusDto.setStatus(CONFIRMED);
 
