@@ -37,6 +37,9 @@ public class SecurityIntegrationTest {
     @MockitoBean
     private EmailService emailService;
 
+    @Autowired
+    private BookingRepository bookingRepository;
+
     private static final String VALID_BOOKING_JSON = """
          {
           "startTime": "%s",
@@ -61,8 +64,6 @@ public class SecurityIntegrationTest {
 
     private static final String UPDATE_STATUS_JSON = """
         {"status": "CONFIRMED"}""";
-    @Autowired
-    private BookingRepository bookingRepository;
 
     @Test
     void getAllBookings_requiresNoAuth() throws Exception {
@@ -119,7 +120,6 @@ public class SecurityIntegrationTest {
     @Test
     void deleteBooking_requiresAuth() throws Exception {
         Booking booking = TestUtil.persistAvailableBooking(bookingRepository);
-        bookingRepository.save(booking);
 
         // No Auth leads to 401
         mockMvc.perform(delete("/booking/admin/{id}", booking.getId()))
@@ -132,8 +132,6 @@ public class SecurityIntegrationTest {
 
         //Confirm actually deleted
         assertNull(bookingRepository.findById(booking.getId()).orElse(null));
-
-
 
     }
 }
